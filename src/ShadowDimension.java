@@ -14,14 +14,17 @@ import java.io.IOException;
  */
 
 public class ShadowDimension extends AbstractGame {
+    // game specs
     private final static int WINDOW_WIDTH = 1024;
     private final static int WINDOW_HEIGHT = 768;
-    private final static int MAX_OBJECTS = 60;
     private final static String GAME_TITLE = "SHADOW DIMENSION";
     private final Image BACKGROUND_IMAGE = new Image("res/background0.png");
     private final Font DEFAULT_FONT = new Font("res/frostbite.ttf", 75);
     private final Font INSTRUCTION_FONT = new Font("res/frostbite.ttf", 40);
     private boolean gameStart = false;
+
+    // game entities
+    private final static int MAX_OBJECTS = 60;
     private Player fae;
     private Wall[] walls = new Wall[MAX_OBJECTS];
     private Sinkhole[] sinkholes = new Sinkhole[MAX_OBJECTS];
@@ -53,14 +56,17 @@ public class ShadowDimension extends AbstractGame {
 
         try (BufferedReader br = new BufferedReader(new FileReader("res/level0.csv"))) {
             String line = null;
+            // reads line by line until end of file
             while ((line = br.readLine()) != null) {
 
+                // splits line into elements
                 String[] data = line.split(",");
 
                 type = data[0];
                 xCoord = Integer.parseInt(data[1]);
                 yCoord = Integer.parseInt(data[2]);
 
+                // creates new objects based on data
                 switch(type) {
                     case "Player":
                         fae = new Player(xCoord, yCoord);
@@ -85,18 +91,21 @@ public class ShadowDimension extends AbstractGame {
         }
     }
 
+    // Draws all the sinkholes stored in array
     private void drawSinkholes() {
         for (Sinkhole sinkhole : sinkholes) {
             if (sinkhole != null) sinkhole.drawSinkhole();
         }
     }
 
+    // Draws all the walls stored in array
     private void drawWalls() {
         for (Wall wall : walls) {
             if (wall != null) wall.drawWall();
         }
     }
 
+    // Checks if player will hit the boundary
     private boolean atBoundary(String direction) {
         switch(direction) {
             case "left":
@@ -107,9 +116,10 @@ public class ShadowDimension extends AbstractGame {
                 return fae.getYCoord() <= topLeftBound.y;
             case "down":
                 return fae.getYCoord() >= botRightBound.y;
+            default:
+                return false;
         }
 
-        return false;
     }
 
 
@@ -122,32 +132,37 @@ public class ShadowDimension extends AbstractGame {
 
 
         if (input.wasPressed(Keys.ESCAPE))
+            // closes window
             Window.close();
         else if (!gameStart) {
-
+            // waits for game to start
             if (input.wasPressed(Keys.SPACE)) {
+                // game has started
                 gameStart = true;
                 readCSV();
             }
+            // title screen
             DEFAULT_FONT.drawString(GAME_TITLE, 260, 250);
             INSTRUCTION_FONT.drawString("PRESS SPACE TO START", 350, 440);
             INSTRUCTION_FONT.drawString("USE ARROW KEYS TO FIND GATE", 350, 490);
 
         } else {
-
+            // moves player if not at boundary and arrow keys are pressed
             if (input.isDown(Keys.LEFT) && !atBoundary("left")) {
                 fae.setXCoord(fae.getXCoord() - STEP_SIZE);
+                fae.setIsRight(false);
             }
             if (input.isDown(Keys.RIGHT) && !atBoundary("right")) {
                 fae.setXCoord(fae.getXCoord() + STEP_SIZE);
+                fae.setIsRight(true);
             }
             if (input.isDown(Keys.UP) && !atBoundary("up")) {
-
                 fae.setYCoord(fae.getYCoord() - STEP_SIZE);
             }
             if (input.isDown(Keys.DOWN) && !atBoundary("down")) {
                 fae.setYCoord(fae.getYCoord() + STEP_SIZE);
             }
+            // renders player and background
             BACKGROUND_IMAGE.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
             fae.drawPlayer();
             drawSinkholes();
