@@ -1,4 +1,6 @@
 import bagel.*;
+import bagel.util.Point;
+
 import java.text.DecimalFormat;
 import java.util.Scanner;
 import java.io.FileReader;
@@ -25,7 +27,9 @@ public class ShadowDimension extends AbstractGame {
     private Sinkhole[] sinkholes = new Sinkhole[MAX_OBJECTS];
     private int numSinkholes = 0;
     private int numWalls = 0;
-
+    private Point topLeftBound;
+    private Point botRightBound;
+    private final static int STEP_SIZE = 2;
 
     public ShadowDimension() {
         super(WINDOW_WIDTH, WINDOW_HEIGHT, GAME_TITLE);
@@ -67,6 +71,10 @@ public class ShadowDimension extends AbstractGame {
                     case "Sinkhole":
                         sinkholes[numSinkholes++] = new Sinkhole(xCoord, yCoord);
                         break;
+                    case "TopLeft":
+                        topLeftBound = new Point(xCoord, yCoord);
+                    case "BottomRight":
+                        botRightBound = new Point(xCoord, yCoord);
                     default:
                         break;
                 }
@@ -89,6 +97,21 @@ public class ShadowDimension extends AbstractGame {
         }
     }
 
+    private boolean atBoundary(String direction) {
+        switch(direction) {
+            case "left":
+                return fae.getXCoord() <= topLeftBound.x;
+            case "right":
+                return fae.getXCoord() >= botRightBound.x;
+            case "up":
+                return fae.getYCoord() <= topLeftBound.y;
+            case "down":
+                return fae.getYCoord() >= botRightBound.y;
+        }
+
+        return false;
+    }
+
 
     /**
      * Performs a state update.
@@ -101,6 +124,7 @@ public class ShadowDimension extends AbstractGame {
         if (input.wasPressed(Keys.ESCAPE))
             Window.close();
         else if (!gameStart) {
+
             if (input.wasPressed(Keys.SPACE)) {
                 gameStart = true;
                 readCSV();
@@ -108,7 +132,22 @@ public class ShadowDimension extends AbstractGame {
             DEFAULT_FONT.drawString(GAME_TITLE, 260, 250);
             INSTRUCTION_FONT.drawString("PRESS SPACE TO START", 350, 440);
             INSTRUCTION_FONT.drawString("USE ARROW KEYS TO FIND GATE", 350, 490);
+
         } else {
+
+            if (input.isDown(Keys.LEFT) && !atBoundary("left")) {
+                fae.setXCoord(fae.getXCoord() - STEP_SIZE);
+            }
+            if (input.isDown(Keys.RIGHT) && !atBoundary("right")) {
+                fae.setXCoord(fae.getXCoord() + STEP_SIZE);
+            }
+            if (input.isDown(Keys.UP) && !atBoundary("up")) {
+
+                fae.setYCoord(fae.getYCoord() - STEP_SIZE);
+            }
+            if (input.isDown(Keys.DOWN) && !atBoundary("down")) {
+                fae.setYCoord(fae.getYCoord() + STEP_SIZE);
+            }
             BACKGROUND_IMAGE.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
             fae.drawPlayer();
             drawSinkholes();
