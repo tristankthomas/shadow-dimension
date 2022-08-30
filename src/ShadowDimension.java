@@ -45,28 +45,32 @@ public class ShadowDimension extends AbstractGame {
      */
     private void readCSV() {
         int xCoord, yCoord;
+        String type;
 
         try (BufferedReader br = new BufferedReader(new FileReader("res/level0.csv"))) {
             String line = null;
             while ((line = br.readLine()) != null) {
 
                 String[] data = line.split(",");
+
+                type = data[0];
                 xCoord = Integer.parseInt(data[1]);
                 yCoord = Integer.parseInt(data[2]);
 
-                // change to switch
-                if (data[0].equals("Player")) {
-                    fae = new Player(xCoord, yCoord);
-
-                } else if (data[0].equals("Wall")) {
-                    walls[numWalls++] = new Wall(xCoord, yCoord);
-
-                } else if (data[0].equals("Sinkhole")) {
-                    sinkholes[numSinkholes++] = new Sinkhole(xCoord, yCoord);
-                } else {
-                    break;
+                switch(type) {
+                    case "Player":
+                        fae = new Player(xCoord, yCoord);
+                        break;
+                    case "Wall":
+                        walls[numWalls++] = new Wall(xCoord, yCoord);
+                        break;
+                    case "Sinkhole":
+                        sinkholes[numSinkholes++] = new Sinkhole(xCoord, yCoord);
+                        break;
+                    default:
+                        break;
                 }
-            }
+           }
 
         } catch (Exception e) {
             e.printStackTrace();
