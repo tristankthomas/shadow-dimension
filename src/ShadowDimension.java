@@ -48,6 +48,10 @@ public class ShadowDimension extends AbstractGame {
         game.run();
     }
 
+    public Point getCentredCoord(String text) {
+        return new Point(Window.getWidth() / 2 - DEFAULT_FONT.getWidth(text) / 2, Window.getHeight() / 2 + 75.0/2);
+    }
+
     /**
      * Method used to read file and create objects (You can change this
      * method as you wish).
@@ -156,6 +160,7 @@ public class ShadowDimension extends AbstractGame {
     }
 
 
+
     /**
      * Performs a state update.
      * allows the game to exit when the escape key is pressed.
@@ -179,6 +184,9 @@ public class ShadowDimension extends AbstractGame {
             INSTRUCTION_FONT.drawString("PRESS SPACE TO START", 350, 440);
             INSTRUCTION_FONT.drawString("USE ARROW KEYS TO FIND GATE", 350, 490);
 
+        } else if (fae.getXCoord() >= 950 && fae.getYCoord() >= 670) {
+            Point textCoord = getCentredCoord("CONGRATULATIONS!");
+            DEFAULT_FONT.drawString("CONGRATULATIONS!", textCoord.x, textCoord.y);
         } else {
             // moves player if not at boundary and arrow keys are pressed
             if (input.isDown(Keys.LEFT) && !atBoundary("left") && !wallIntersect("left")) {
@@ -199,6 +207,7 @@ public class ShadowDimension extends AbstractGame {
                 fae.setDirection("down");
                 fae.setYCoord(fae.getYCoord() + STEP_SIZE);
             }
+
             // renders player, obstacles and background
             BACKGROUND_IMAGE.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
             fae.drawPlayer();
