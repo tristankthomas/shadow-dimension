@@ -1,5 +1,7 @@
 import bagel.*;
 import bagel.util.Point;
+import bagel.util.Side;
+import bagel.util.Vector2;
 
 import java.text.DecimalFormat;
 import java.util.Scanner;
@@ -72,10 +74,10 @@ public class ShadowDimension extends AbstractGame {
                         fae = new Player(xCoord, yCoord);
                         break;
                     case "Wall":
-                        walls[numWalls++] = new Wall(xCoord, yCoord);
+                        walls[numWalls++] = new Wall(new Point(xCoord, yCoord));
                         break;
                     case "Sinkhole":
-                        sinkholes[numSinkholes++] = new Sinkhole(xCoord, yCoord);
+                        sinkholes[numSinkholes++] = new Sinkhole(new Point(xCoord, yCoord));
                         break;
                     case "TopLeft":
                         topLeftBound = new Point(xCoord, yCoord);
@@ -122,6 +124,37 @@ public class ShadowDimension extends AbstractGame {
 
     }
 
+    // Finds the edge that is intersected with the wall
+    public String pointCheck(Wall wall) {
+        Point topLeft = fae.getRect().topLeft();
+        Point botRight = fae.getRect().bottomRight();
+        if (wall.getRect().intersects(new Point(fae.getRect().right(), topLeft.y + 3)) ||
+                wall.getRect().intersects(new Point(fae.getRect().right(), botRight.y - 3)))
+            return "right";
+        else if (wall.getRect().intersects(new Point(fae.getRect().left(), topLeft.y + 3)) ||
+                wall.getRect().intersects(new Point(fae.getRect().left(), botRight.y - 3)))
+            return "left";
+        else if (wall.getRect().intersects(new Point(topLeft.x + 3, fae.getRect().top())) ||
+                wall.getRect().intersects(new Point(botRight.x - 3, fae.getRect().top())))
+            return "up";
+        else if (wall.getRect().intersects(new Point(topLeft.x + 3, fae.getRect().bottom())) ||
+                wall.getRect().intersects(new Point(botRight.x - 3, fae.getRect().bottom())))
+            return "down";
+
+        return "";
+    }
+    public boolean wallIntersect(String direction) {
+        boolean inter = false;
+        for (Wall wall : walls) {
+            if (wall != null && wall.getRect().intersects(fae.getRect())) {
+                System.out.println(pointCheck(wall));
+                if (pointCheck(wall).equals(direction))
+                    inter = true;
+            }
+        }
+        return inter;
+    }
+
 
     /**
      * Performs a state update.
@@ -129,7 +162,7 @@ public class ShadowDimension extends AbstractGame {
      */
     @Override
     protected void update(Input input) {
-
+        Point prev;
 
         if (input.wasPressed(Keys.ESCAPE))
             // closes window
@@ -148,21 +181,25 @@ public class ShadowDimension extends AbstractGame {
 
         } else {
             // moves player if not at boundary and arrow keys are pressed
-            if (input.isDown(Keys.LEFT) && !atBoundary("left")) {
+            if (input.isDown(Keys.LEFT) && !atBoundary("left") && !wallIntersect("left")) {
+                fae.setDirection("left");
                 fae.setXCoord(fae.getXCoord() - STEP_SIZE);
                 fae.setIsRight(false);
             }
-            if (input.isDown(Keys.RIGHT) && !atBoundary("right")) {
+            if (input.isDown(Keys.RIGHT) && !atBoundary("right") && !wallIntersect("right")) {
+                fae.setDirection("right");
                 fae.setXCoord(fae.getXCoord() + STEP_SIZE);
                 fae.setIsRight(true);
             }
-            if (input.isDown(Keys.UP) && !atBoundary("up")) {
+            if (input.isDown(Keys.UP) && !atBoundary("up") && !wallIntersect("up")) {
+                fae.setDirection("up");
                 fae.setYCoord(fae.getYCoord() - STEP_SIZE);
             }
-            if (input.isDown(Keys.DOWN) && !atBoundary("down")) {
+            if (input.isDown(Keys.DOWN) && !atBoundary("down") && !wallIntersect("down")) {
+                fae.setDirection("down");
                 fae.setYCoord(fae.getYCoord() + STEP_SIZE);
             }
-            // renders player and background
+            // renders player, obstacles and background
             BACKGROUND_IMAGE.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
             fae.drawPlayer();
             drawSinkholes();
