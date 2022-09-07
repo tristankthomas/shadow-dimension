@@ -1,13 +1,9 @@
 import bagel.*;
+import bagel.util.Colour;
 import bagel.util.Point;
-import bagel.util.Side;
-import bagel.util.Vector2;
 
-import java.text.DecimalFormat;
-import java.util.Scanner;
 import java.io.FileReader;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.ArrayList;
 /**
  * Skeleton Code for SWEN20003 Project 1, Semester 2, 2022
@@ -23,16 +19,20 @@ public class ShadowDimension extends AbstractGame {
     private final static String GAME_TITLE = "SHADOW DIMENSION";
     private final static String WIN_MESSAGE = "CONGRATULATIONS!";
     private final static String LOSE_MESSAGE = "GAME OVER!";
+    private String healthMessage = "";
+    private DrawOptions healthOptions = new DrawOptions();
+    private Colour healthColour = new Colour(0,0.8,0.2);
     private final Image BACKGROUND_IMAGE = new Image("res/background0.png");
     private final Font DEFAULT_FONT = new Font("res/frostbite.ttf", 75);
     private final Font INSTRUCTION_FONT = new Font("res/frostbite.ttf", 40);
+    private final Font HEALTH_FONT = new Font("res/frostbite.ttf", 30);
     private final static int WALL_INTERSECT_OFFSET = 3;
     private boolean gameStart = false;
 
     // game entities
     private final static int MAX_OBJECTS = 60;
     private Player fae;
-    private Wall[] walls = new Wall[MAX_OBJECTS];
+    private ArrayList<Wall> walls = new ArrayList<Wall>();
     private ArrayList<Sinkhole> sinkholes = new ArrayList<Sinkhole>();
     private int numSinkholes = 0;
     private int numWalls = 0;
@@ -82,7 +82,8 @@ public class ShadowDimension extends AbstractGame {
                         fae = new Player(xCoord, yCoord);
                         break;
                     case "Wall":
-                        walls[numWalls++] = new Wall(new Point(xCoord, yCoord));
+                        walls.add(new Wall(new Point(xCoord, yCoord)));
+                        numWalls++;
                         break;
                     case "Sinkhole":
                         sinkholes.add(new Sinkhole(new Point(xCoord, yCoord)));
@@ -104,15 +105,15 @@ public class ShadowDimension extends AbstractGame {
 
     // Draws all the sinkholes stored in array
     private void drawSinkholes() {
-        for (Sinkhole sinkhole : sinkholes) {
-            if (sinkhole != null) sinkhole.drawSinkhole();
+        for (int i = 0; i < numSinkholes; i++) {
+            sinkholes.get(i).drawSinkhole();
         }
     }
 
     // Draws all the walls stored in array
     private void drawWalls() {
-        for (Wall wall : walls) {
-            if (wall != null) wall.drawWall();
+        for (int i = 0; i < numWalls; i++) {
+            walls.get(i).drawWall();
         }
     }
 
@@ -210,30 +211,33 @@ public class ShadowDimension extends AbstractGame {
         } else {
             // moves player if not at boundary and arrow keys are pressed
             if (input.isDown(Keys.LEFT) && !atBoundary("left") && !wallIntersect("left")) {
-                fae.setDirection("left");
                 fae.setXCoord(fae.getXCoord() - STEP_SIZE);
                 fae.setIsRight(false);
             }
             if (input.isDown(Keys.RIGHT) && !atBoundary("right") && !wallIntersect("right")) {
-                fae.setDirection("right");
                 fae.setXCoord(fae.getXCoord() + STEP_SIZE);
                 fae.setIsRight(true);
             }
             if (input.isDown(Keys.UP) && !atBoundary("up") && !wallIntersect("up")) {
-                fae.setDirection("up");
                 fae.setYCoord(fae.getYCoord() - STEP_SIZE);
             }
             if (input.isDown(Keys.DOWN) && !atBoundary("down") && !wallIntersect("down")) {
-                fae.setDirection("down");
                 fae.setYCoord(fae.getYCoord() + STEP_SIZE);
             }
             if (holeIntersect()) {
                 fae.setHealth(fae.getHealth() - Sinkhole.DAMAGE_POINTS);
                 System.out.printf("Sinkhole inflicts %d damage points on Fae. Fae's current health: %d/%d\n", Sinkhole.DAMAGE_POINTS, fae.getHealth(), fae.MAX_HEALTH);
-            }
+                if (fae.getHealthPercentage() < 35) {
+                    healthColour = new Colour(1,0,0);
+                } else if (fae.getHealthPercentage() < 65) {
+                    healthColour = new Colour(0.9,0.6,0);
+                }
 
+            }
+            healthOptions.setBlendColour(healthColour);
             // renders player, obstacles and background
             BACKGROUND_IMAGE.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
+            HEALTH_FONT.drawString(String.format("%d%%", fae.getHealthPercentage()), 20, 25, healthOptions);
             fae.drawPlayer();
             drawSinkholes();
             drawWalls();
