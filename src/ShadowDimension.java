@@ -8,6 +8,7 @@ import java.util.Scanner;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 /**
  * Skeleton Code for SWEN20003 Project 1, Semester 2, 2022
  *
@@ -20,16 +21,19 @@ public class ShadowDimension extends AbstractGame {
     private final static int WINDOW_WIDTH = 1024;
     private final static int WINDOW_HEIGHT = 768;
     private final static String GAME_TITLE = "SHADOW DIMENSION";
+    private final static String WIN_MESSAGE = "CONGRATULATIONS!";
+    private final static String LOSE_MESSAGE = "GAME OVER!";
     private final Image BACKGROUND_IMAGE = new Image("res/background0.png");
     private final Font DEFAULT_FONT = new Font("res/frostbite.ttf", 75);
     private final Font INSTRUCTION_FONT = new Font("res/frostbite.ttf", 40);
+    private final static int WALL_INTERSECT_OFFSET = 3;
     private boolean gameStart = false;
 
     // game entities
     private final static int MAX_OBJECTS = 60;
     private Player fae;
     private Wall[] walls = new Wall[MAX_OBJECTS];
-    private Sinkhole[] sinkholes = new Sinkhole[MAX_OBJECTS];
+    private ArrayList<Sinkhole> sinkholes = new ArrayList<Sinkhole>();
     private int numSinkholes = 0;
     private int numWalls = 0;
     private Point topLeftBound;
@@ -81,7 +85,8 @@ public class ShadowDimension extends AbstractGame {
                         walls[numWalls++] = new Wall(new Point(xCoord, yCoord));
                         break;
                     case "Sinkhole":
-                        sinkholes[numSinkholes++] = new Sinkhole(new Point(xCoord, yCoord));
+                        sinkholes.add(new Sinkhole(new Point(xCoord, yCoord)));
+                        numSinkholes++;
                         break;
                     case "TopLeft":
                         topLeftBound = new Point(xCoord, yCoord);
@@ -132,26 +137,27 @@ public class ShadowDimension extends AbstractGame {
     public String pointCheck(Wall wall) {
         Point topLeft = fae.getRect().topLeft();
         Point botRight = fae.getRect().bottomRight();
-        if (wall.getRect().intersects(new Point(fae.getRect().right(), topLeft.y + 3)) ||
-                wall.getRect().intersects(new Point(fae.getRect().right(), botRight.y - 3)))
+        if (wall.getRect().intersects(new Point(fae.getRect().right(), topLeft.y + WALL_INTERSECT_OFFSET)) ||
+                wall.getRect().intersects(new Point(fae.getRect().right(), botRight.y - WALL_INTERSECT_OFFSET)))
             return "right";
-        else if (wall.getRect().intersects(new Point(fae.getRect().left(), topLeft.y + 3)) ||
-                wall.getRect().intersects(new Point(fae.getRect().left(), botRight.y - 3)))
+        else if (wall.getRect().intersects(new Point(fae.getRect().left(), topLeft.y + WALL_INTERSECT_OFFSET)) ||
+                wall.getRect().intersects(new Point(fae.getRect().left(), botRight.y - WALL_INTERSECT_OFFSET)))
             return "left";
-        else if (wall.getRect().intersects(new Point(topLeft.x + 3, fae.getRect().top())) ||
-                wall.getRect().intersects(new Point(botRight.x - 3, fae.getRect().top())))
+        else if (wall.getRect().intersects(new Point(topLeft.x + WALL_INTERSECT_OFFSET, fae.getRect().top())) ||
+                wall.getRect().intersects(new Point(botRight.x - WALL_INTERSECT_OFFSET, fae.getRect().top())))
             return "up";
-        else if (wall.getRect().intersects(new Point(topLeft.x + 3, fae.getRect().bottom())) ||
-                wall.getRect().intersects(new Point(botRight.x - 3, fae.getRect().bottom())))
+        else if (wall.getRect().intersects(new Point(topLeft.x + WALL_INTERSECT_OFFSET, fae.getRect().bottom())) ||
+                wall.getRect().intersects(new Point(botRight.x - WALL_INTERSECT_OFFSET, fae.getRect().bottom())))
             return "down";
 
         return "";
     }
+
+    // move into wall class
     public boolean wallIntersect(String direction) {
         boolean inter = false;
         for (Wall wall : walls) {
             if (wall != null && wall.getRect().intersects(fae.getRect())) {
-                System.out.println(pointCheck(wall));
                 if (pointCheck(wall).equals(direction))
                     inter = true;
             }
@@ -159,6 +165,17 @@ public class ShadowDimension extends AbstractGame {
         return inter;
     }
 
+
+    public boolean holeIntersect() {
+        for (int i = 0; i < numSinkholes; i++) {
+            if (sinkholes.get(i).getRect().intersects(fae.getRect())) {
+                sinkholes.remove(i);
+                numSinkholes--;
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     /**
@@ -185,8 +202,11 @@ public class ShadowDimension extends AbstractGame {
             INSTRUCTION_FONT.drawString("USE ARROW KEYS TO FIND GATE", 350, 490);
 
         } else if (fae.getXCoord() >= 950 && fae.getYCoord() >= 670) {
-            Point textCoord = getCentredCoord("CONGRATULATIONS!");
-            DEFAULT_FONT.drawString("CONGRATULATIONS!", textCoord.x, textCoord.y);
+            Point textCoord = getCentredCoord(WIN_MESSAGE);
+            DEFAULT_FONT.drawString(WIN_MESSAGE, textCoord.x, textCoord.y);
+        } else if (fae.getHealth() <= 0) {
+            Point textCoord = getCentredCoord(LOSE_MESSAGE);
+            DEFAULT_FONT.drawString(LOSE_MESSAGE, textCoord.x, textCoord.y);
         } else {
             // moves player if not at boundary and arrow keys are pressed
             if (input.isDown(Keys.LEFT) && !atBoundary("left") && !wallIntersect("left")) {
@@ -206,6 +226,10 @@ public class ShadowDimension extends AbstractGame {
             if (input.isDown(Keys.DOWN) && !atBoundary("down") && !wallIntersect("down")) {
                 fae.setDirection("down");
                 fae.setYCoord(fae.getYCoord() + STEP_SIZE);
+            }
+            if (holeIntersect()) {
+                fae.setHealth(fae.getHealth() - Sinkhole.DAMAGE_POINTS);
+                System.out.printf("Sinkhole inflicts %d damage points on Fae. Fae's current health: %d/%d\n", Sinkhole.DAMAGE_POINTS, fae.getHealth(), fae.MAX_HEALTH);
             }
 
             // renders player, obstacles and background
