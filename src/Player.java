@@ -1,5 +1,5 @@
+// Class representing the player
 import bagel.*;
-import bagel.util.Point;
 import bagel.util.Rectangle;
 
 public class Player {
@@ -10,9 +10,10 @@ public class Player {
     private int xCoord;
     private int yCoord;
     private Rectangle rect;
+
+    // keeps track of which direction Fae is facing
     private boolean isRight = true;
 
-    // Constructor
     public Player(int x, int y) {
         this.xCoord = x;
         this.yCoord = y;
@@ -33,7 +34,7 @@ public class Player {
     }
 
     public void setHealth(int health) {
-
+        // if health goes negative sets health to 0
         this.health = (health <= 0) ? 0 : health;
 
     }
@@ -60,6 +61,7 @@ public class Player {
 
     // Draws player based on direction
     public void drawPlayer() {
+        // draws the player in the direction it was last moving
         if (isRight) playerImage = new Image("res/faeRight.png");
         else playerImage = new Image("res/faeLeft.png");
 

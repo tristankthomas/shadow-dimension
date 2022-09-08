@@ -2,13 +2,9 @@ import bagel.*;
 import bagel.util.Colour;
 import bagel.util.Point;
 
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.util.ArrayList;
 /**
- * Skeleton Code for SWEN20003 Project 1, Semester 2, 2022
+ * SWEN20003 Project 1, Semester 2, 2022
  *
- * Please enter your name below
  * @author Tristan Thomas
  */
 
@@ -19,173 +15,48 @@ public class ShadowDimension extends AbstractGame {
     private final static String GAME_TITLE = "SHADOW DIMENSION";
     private final static String WIN_MESSAGE = "CONGRATULATIONS!";
     private final static String LOSE_MESSAGE = "GAME OVER!";
-    private String healthMessage = "";
-    private DrawOptions healthOptions = new DrawOptions();
-    private Colour healthColour = new Colour(0,0.8,0.2);
-    private final Image BACKGROUND_IMAGE = new Image("res/background0.png");
-    private final Font DEFAULT_FONT = new Font("res/frostbite.ttf", 75);
-    private final Font INSTRUCTION_FONT = new Font("res/frostbite.ttf", 40);
-    private final Font HEALTH_FONT = new Font("res/frostbite.ttf", 30);
-    private final static int WALL_INTERSECT_OFFSET = 3;
-    private boolean gameStart = false;
-
-    // game entities
-    private final static int MAX_OBJECTS = 60;
-    private Player fae;
-    private ArrayList<Wall> walls = new ArrayList<Wall>();
-    private ArrayList<Sinkhole> sinkholes = new ArrayList<Sinkhole>();
-    private int numSinkholes = 0;
-    private int numWalls = 0;
-    private Point topLeftBound;
-    private Point botRightBound;
+    private final static int LOW_HEALTH = 35;
+    private final static int MEDIUM_HEALTH = 65;
+    private final static Colour GREEN = new Colour(0,0.8,0.2);
+    private final static Colour ORANGE = new Colour(0.9,0.6,0);
+    private final static Colour RED = new Colour(1,0,0);
+    private Colour healthColour = GREEN;
     private final static int STEP_SIZE = 2;
+    private DrawOptions healthOptions = new DrawOptions();
+    private final Image BACKGROUND_IMAGE = new Image("res/background0.png");
+    private final static int DEFAULT_FONT_SIZE = 75;
+    private final static int INSTRUCTION_FONT_SIZE = 40;
+    private final static int HEALTH_FONT_SIZE = 30;
+    private final Font DEFAULT_FONT = new Font("res/frostbite.ttf", DEFAULT_FONT_SIZE);
+    private final Font INSTRUCTION_FONT = new Font("res/frostbite.ttf", INSTRUCTION_FONT_SIZE);
+    private final Font HEALTH_FONT = new Font("res/frostbite.ttf", HEALTH_FONT_SIZE);
+    private final int PORTAL_X = 950;
+    private final int PORTAL_Y = 670;
+    private boolean gameStart = false;
+    // World object representing level 0 of Shadow Dimension
+    private World level0;
+
 
     public ShadowDimension() {
         super(WINDOW_WIDTH, WINDOW_HEIGHT, GAME_TITLE);
     }
 
-    /**
-     * The entry point for the program.
-     */
+    // Entry point for the program
     public static void main(String[] args) {
         ShadowDimension game = new ShadowDimension();
         game.run();
     }
 
+    // Calculates the centre coordinates for a given string (top left of string)
     public Point getCentredCoord(String text) {
-        return new Point(Window.getWidth() / 2 - DEFAULT_FONT.getWidth(text) / 2, Window.getHeight() / 2 + 75.0/2);
-    }
-
-    /**
-     * Method used to read file and create objects (You can change this
-     * method as you wish).
-     */
-    private void readCSV() {
-        int xCoord, yCoord;
-        String type;
-
-        try (BufferedReader br = new BufferedReader(new FileReader("res/level0.csv"))) {
-            String line = null;
-            // reads line by line until end of file
-            while ((line = br.readLine()) != null) {
-
-                // splits line into elements
-                String[] data = line.split(",");
-
-                type = data[0];
-                xCoord = Integer.parseInt(data[1]);
-                yCoord = Integer.parseInt(data[2]);
-
-                // creates new objects based on data
-                switch(type) {
-                    case "Player":
-                        fae = new Player(xCoord, yCoord);
-                        break;
-                    case "Wall":
-                        walls.add(new Wall(new Point(xCoord, yCoord)));
-                        numWalls++;
-                        break;
-                    case "Sinkhole":
-                        sinkholes.add(new Sinkhole(new Point(xCoord, yCoord)));
-                        numSinkholes++;
-                        break;
-                    case "TopLeft":
-                        topLeftBound = new Point(xCoord, yCoord);
-                    case "BottomRight":
-                        botRightBound = new Point(xCoord, yCoord);
-                    default:
-                        break;
-                }
-           }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Draws all the sinkholes stored in array
-    private void drawSinkholes() {
-        for (int i = 0; i < numSinkholes; i++) {
-            sinkholes.get(i).drawSinkhole();
-        }
-    }
-
-    // Draws all the walls stored in array
-    private void drawWalls() {
-        for (int i = 0; i < numWalls; i++) {
-            walls.get(i).drawWall();
-        }
-    }
-
-    // Checks if player will hit the boundary
-    private boolean atBoundary(String direction) {
-        switch(direction) {
-            case "left":
-                return fae.getXCoord() <= topLeftBound.x;
-            case "right":
-                return fae.getXCoord() >= botRightBound.x;
-            case "up":
-                return fae.getYCoord() <= topLeftBound.y;
-            case "down":
-                return fae.getYCoord() >= botRightBound.y;
-            default:
-                return false;
-        }
-
-    }
-
-    // Finds the edge that is intersected with the wall
-    public String pointCheck(Wall wall) {
-        Point topLeft = fae.getRect().topLeft();
-        Point botRight = fae.getRect().bottomRight();
-        if (wall.getRect().intersects(new Point(fae.getRect().right(), topLeft.y + WALL_INTERSECT_OFFSET)) ||
-                wall.getRect().intersects(new Point(fae.getRect().right(), botRight.y - WALL_INTERSECT_OFFSET)))
-            return "right";
-        else if (wall.getRect().intersects(new Point(fae.getRect().left(), topLeft.y + WALL_INTERSECT_OFFSET)) ||
-                wall.getRect().intersects(new Point(fae.getRect().left(), botRight.y - WALL_INTERSECT_OFFSET)))
-            return "left";
-        else if (wall.getRect().intersects(new Point(topLeft.x + WALL_INTERSECT_OFFSET, fae.getRect().top())) ||
-                wall.getRect().intersects(new Point(botRight.x - WALL_INTERSECT_OFFSET, fae.getRect().top())))
-            return "up";
-        else if (wall.getRect().intersects(new Point(topLeft.x + WALL_INTERSECT_OFFSET, fae.getRect().bottom())) ||
-                wall.getRect().intersects(new Point(botRight.x - WALL_INTERSECT_OFFSET, fae.getRect().bottom())))
-            return "down";
-
-        return "";
-    }
-
-    // move into wall class
-    public boolean wallIntersect(String direction) {
-        boolean inter = false;
-        for (Wall wall : walls) {
-            if (wall != null && wall.getRect().intersects(fae.getRect())) {
-                if (pointCheck(wall).equals(direction))
-                    inter = true;
-            }
-        }
-        return inter;
+        return new Point(Window.getWidth() / 2 - DEFAULT_FONT.getWidth(text) / 2,
+                Window.getHeight() / 2 + (double) DEFAULT_FONT_SIZE / 2);
     }
 
 
-    public boolean holeIntersect() {
-        for (int i = 0; i < numSinkholes; i++) {
-            if (sinkholes.get(i).getRect().intersects(fae.getRect())) {
-                sinkholes.remove(i);
-                numSinkholes--;
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    /**
-     * Performs a state update.
-     * allows the game to exit when the escape key is pressed.
-     */
+    // Performs a state update at the refresh rate of screen
     @Override
     protected void update(Input input) {
-        Point prev;
 
         if (input.wasPressed(Keys.ESCAPE))
             // closes window
@@ -195,52 +66,85 @@ public class ShadowDimension extends AbstractGame {
             if (input.wasPressed(Keys.SPACE)) {
                 // game has started
                 gameStart = true;
-                readCSV();
+                // creates a new world layout (level 0)
+                level0 = new World("res/level0.csv");
             }
             // title screen
             DEFAULT_FONT.drawString(GAME_TITLE, 260, 250);
             INSTRUCTION_FONT.drawString("PRESS SPACE TO START", 350, 440);
             INSTRUCTION_FONT.drawString("USE ARROW KEYS TO FIND GATE", 350, 490);
 
-        } else if (fae.getXCoord() >= 950 && fae.getYCoord() >= 670) {
-            Point textCoord = getCentredCoord(WIN_MESSAGE);
-            DEFAULT_FONT.drawString(WIN_MESSAGE, textCoord.x, textCoord.y);
-        } else if (fae.getHealth() <= 0) {
-            Point textCoord = getCentredCoord(LOSE_MESSAGE);
-            DEFAULT_FONT.drawString(LOSE_MESSAGE, textCoord.x, textCoord.y);
+        } else if (level0.getFae().getXCoord() >= PORTAL_X && level0.getFae().getYCoord() >= PORTAL_Y) {
+            // win screen
+            Point winTextCoord = getCentredCoord(WIN_MESSAGE);
+            DEFAULT_FONT.drawString(WIN_MESSAGE, winTextCoord.x, winTextCoord.y);
+
+        } else if (level0.getFae().getHealth() <= 0) {
+            // lose screen
+            Point loseTextCoord = getCentredCoord(LOSE_MESSAGE);
+            DEFAULT_FONT.drawString(LOSE_MESSAGE, loseTextCoord.x, loseTextCoord.y);
+
         } else {
-            // moves player if not at boundary and arrow keys are pressed
-            if (input.isDown(Keys.LEFT) && !atBoundary("left") && !wallIntersect("left")) {
-                fae.setXCoord(fae.getXCoord() - STEP_SIZE);
-                fae.setIsRight(false);
+            // moves player if not at a boundary and arrow keys are pressed
+            if (input.isDown(Keys.LEFT) && !level0.atBoundary("left") &&
+                    !level0.wallIntersect("left")) {
+
+                level0.getFae().setXCoord(level0.getFae().getXCoord() - STEP_SIZE);
+                level0.getFae().setIsRight(false);
+
             }
-            if (input.isDown(Keys.RIGHT) && !atBoundary("right") && !wallIntersect("right")) {
-                fae.setXCoord(fae.getXCoord() + STEP_SIZE);
-                fae.setIsRight(true);
+
+            if (input.isDown(Keys.RIGHT) && !level0.atBoundary("right") &&
+                    !level0.wallIntersect("right")) {
+
+                level0.getFae().setXCoord(level0.getFae().getXCoord() + STEP_SIZE);
+                level0.getFae().setIsRight(true);
+
             }
-            if (input.isDown(Keys.UP) && !atBoundary("up") && !wallIntersect("up")) {
-                fae.setYCoord(fae.getYCoord() - STEP_SIZE);
+
+            if (input.isDown(Keys.UP) && !level0.atBoundary("up") &&
+                    !level0.wallIntersect("up")) {
+
+                level0.getFae().setYCoord(level0.getFae().getYCoord() - STEP_SIZE);
+
             }
-            if (input.isDown(Keys.DOWN) && !atBoundary("down") && !wallIntersect("down")) {
-                fae.setYCoord(fae.getYCoord() + STEP_SIZE);
+
+            if (input.isDown(Keys.DOWN) && !level0.atBoundary("down") &&
+                    !level0.wallIntersect("down")) {
+
+                level0.getFae().setYCoord(level0.getFae().getYCoord() + STEP_SIZE);
+
             }
-            if (holeIntersect()) {
-                fae.setHealth(fae.getHealth() - Sinkhole.DAMAGE_POINTS);
-                System.out.printf("Sinkhole inflicts %d damage points on Fae. Fae's current health: %d/%d\n", Sinkhole.DAMAGE_POINTS, fae.getHealth(), fae.MAX_HEALTH);
-                if (fae.getHealthPercentage() < 35) {
-                    healthColour = new Colour(1,0,0);
-                } else if (fae.getHealthPercentage() < 65) {
-                    healthColour = new Colour(0.9,0.6,0);
+            // if a hole is intersected by Fae
+            if (level0.holeIntersect()) {
+
+                level0.getFae().setHealth(level0.getFae().getHealth() - Sinkhole.getDamagePoints());
+                // prints out player health to console
+                System.out.printf("Sinkhole inflicts %d damage points on Fae. Fae's current health: %d/%d\n",
+                        Sinkhole.getDamagePoints(), level0.getFae().getHealth(), level0.getFae().MAX_HEALTH);
+
+                // changes health percentage colour
+                if (level0.getFae().getHealthPercentage() < LOW_HEALTH) {
+                    // change colour to red
+                    healthColour = RED;
+
+                } else if (level0.getFae().getHealthPercentage() < MEDIUM_HEALTH) {
+                    // change colour to orange
+                    healthColour = ORANGE;
                 }
 
             }
+            // sets the health bar colour
             healthOptions.setBlendColour(healthColour);
+
             // renders player, obstacles and background
             BACKGROUND_IMAGE.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
-            HEALTH_FONT.drawString(String.format("%d%%", fae.getHealthPercentage()), 20, 25, healthOptions);
-            fae.drawPlayer();
-            drawSinkholes();
-            drawWalls();
+            HEALTH_FONT.drawString(String.format("%d%%", level0.getFae().getHealthPercentage()), 20, 25,
+                    healthOptions);
+
+            level0.getFae().drawPlayer();
+            level0.drawSinkholes();
+            level0.drawWalls();
         }
 
     }

@@ -1,3 +1,4 @@
+// Class representing a wall
 import bagel.*;
 import bagel.util.Point;
 import bagel.util.Rectangle;
@@ -17,6 +18,7 @@ public class Wall {
         return rect;
     }
 
+    // Draws a wall
     public void drawWall() {
         wallImage.drawFromTopLeft(coords.x, coords.y);
     }
