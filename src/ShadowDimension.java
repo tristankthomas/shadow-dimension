@@ -136,7 +136,7 @@ public class ShadowDimension extends AbstractGame {
                 level0.getFae().setHealth(level0.getFae().getHealth() - Sinkhole.getDamagePoints());
                 /* prints out player health to console */
                 System.out.printf("Sinkhole inflicts %d damage points on Fae. Fae's current health: %d/%d\n",
-                        Sinkhole.getDamagePoints(), level0.getFae().getHealth(), level0.getFae().MAX_HEALTH);
+                        Sinkhole.getDamagePoints(), level0.getFae().getHealth(), level0.getFae().getMaxHealth());
 
                 /* changes health percentage colour */
                 if (level0.getFae().getHealthPercentage() < LOW_HEALTH) {

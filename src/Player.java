@@ -11,7 +11,7 @@ import bagel.util.Rectangle;
 
 public class Player {
     private Image playerImage = new Image("res/faeRight.png");
-    public final static int MAX_HEALTH = 100;
+    private final static int MAX_HEALTH = 100;
 
     private int health = MAX_HEALTH;
     private int xCoord;
@@ -33,11 +33,16 @@ public class Player {
 
     /* Getters and setters */
     public int getHealthPercentage() {
-        return (int) ((double) health / (double) MAX_HEALTH * 100.0);
+        /* casts to double to stop floor division then casts back to int */
+        return (int) ((double) health / MAX_HEALTH * 100.0);
     }
 
     public int getHealth() {
         return health;
+    }
+
+    public int getMaxHealth() {
+        return MAX_HEALTH;
     }
 
     public void setHealth(int health) {

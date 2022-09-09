@@ -105,7 +105,7 @@ public class World {
 
 
     /* Finds the edge of the wall that Fae intersects with */
-    public String pointCheck(Wall wall) {
+    private String pointCheck(Wall wall) {
         Point topLeft = fae.getRect().topLeft();
         Point botRight = fae.getRect().bottomRight();
         /* checks that either of the two points, 3 pixels in from Fae rectangle border, intersects with a wall and
