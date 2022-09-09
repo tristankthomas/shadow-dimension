@@ -1,4 +1,11 @@
-// Class representing a sinkhole
+/**
+ * SWEN20003 Project 1, Semester 2, 2022
+ *
+ * Sinkhole.java: Class representing a sinkhole
+ *
+ * @author Tristan Thomas
+ */
+
 import bagel.*;
 import bagel.util.Point;
 import bagel.util.Rectangle;
@@ -15,7 +22,7 @@ public class Sinkhole {
         rect = new Rectangle(coords, sinkholeImage.getWidth(), sinkholeImage.getHeight());
     }
 
-    // Getters
+    /* Getters */
     public Rectangle getRect() {
         return rect;
     }
@@ -24,7 +31,7 @@ public class Sinkhole {
         return DAMAGE_POINTS;
     }
 
-    // Draws a sinkhole
+    /* Draws a sinkhole */
     public void drawSinkhole() {
         sinkholeImage.drawFromTopLeft(coords.x, coords.y);
     }

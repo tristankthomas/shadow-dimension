@@ -1,4 +1,11 @@
-// Class representing the player
+/**
+ * SWEN20003 Project 1, Semester 2, 2022
+ *
+ * Player.java: Class representing the player
+ *
+ * @author Tristan Thomas
+ */
+
 import bagel.*;
 import bagel.util.Rectangle;
 
@@ -24,7 +31,7 @@ public class Player {
         return rect;
     }
 
-    // Getters and setters
+    /* Getters and setters */
     public int getHealthPercentage() {
         return (int) ((double) health / (double) MAX_HEALTH * 100.0);
     }
@@ -59,9 +66,9 @@ public class Player {
         this.yCoord = yCoord;
     }
 
-    // Draws player based on direction
+    /* Draws player based on direction */
     public void drawPlayer() {
-        // draws the player in the direction it was last moving
+        /* draws the player in the direction it was last moving */
         if (isRight) playerImage = new Image("res/faeRight.png");
         else playerImage = new Image("res/faeLeft.png");
 
