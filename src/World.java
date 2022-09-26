@@ -1,7 +1,7 @@
 /**
- * SWEN20003 Project 1, Semester 2, 2022
+ * SWEN20003 Project 2, Semester 2, 2022
  *
- * World.java: Class encapsulating the world environment including the player, walls, and sinkholes
+ * World.java: Class encapsulating the world environment including the player, demons and obstacles
  *
  * @author Tristan Thomas
  */
@@ -13,13 +13,18 @@ import java.util.ArrayList;
 
 public class World {
 
-    private Player fae;
+    private static Player fae = new Player();
+    private Navec navec;
     /* array list used here to simplify the removing process and increase memory efficiency */
-    private ArrayList<Wall> walls = new ArrayList<Wall>();
     private ArrayList<Sinkhole> sinkholes = new ArrayList<Sinkhole>();
+    private ArrayList<Tree> trees = new ArrayList<Tree>();
+    private ArrayList<Wall> walls = new ArrayList<Wall>();
+    private ArrayList<PassiveDemon> passiveDemons = new ArrayList<PassiveDemon>();
+    private ArrayList<AggressiveDemon> aggressiveDemons = new ArrayList<AggressiveDemon>();
     private Point topLeftBound;
     private Point botRightBound;
     private int numSinkholes = 0;
+    private int numTrees = 0;
     private int numWalls = 0;
     private final static int WALL_INTERSECT_OFFSET = 3;
 
@@ -43,8 +48,9 @@ public class World {
 
                 /* creates new objects based on data */
                 switch(type) {
-                    case "Player":
-                        fae = new Player(xCoord, yCoord);
+                    case "Fae":
+                        fae.setXCoord(xCoord);
+                        fae.setYCoord(yCoord);
                         break;
                     case "Wall":
                         walls.add(new Wall(new Point(xCoord, yCoord)));
@@ -54,10 +60,21 @@ public class World {
                         sinkholes.add(new Sinkhole(new Point(xCoord, yCoord)));
                         numSinkholes++;
                         break;
+                    case "Tree":
+                        trees.add(new Tree(new Point(xCoord, yCoord)));
+                        numTrees++;
+                        break;
+                    case "Navec":
+                        navec = new Navec();
+                        break;
+                    case "Demon":
+                        break;
                     case "TopLeft":
                         topLeftBound = new Point(xCoord, yCoord);
+                        break;
                     case "BottomRight":
                         botRightBound = new Point(xCoord, yCoord);
+                        break;
                     default:
                         break;
                 }
@@ -72,17 +89,16 @@ public class World {
         return fae;
     }
 
-    /* Draws all the sinkholes stored in array */
-    public void drawSinkholes() {
+    /* Draws all the obstacles stored in arrays */
+    public void drawObstacles() {
         for (int i = 0; i < numSinkholes; i++) {
-            sinkholes.get(i).drawSinkhole();
+            sinkholes.get(i).drawObstacle();
         }
-    }
-
-    /* Draws all the walls stored in array */
-    public void drawWalls() {
         for (int i = 0; i < numWalls; i++) {
-            walls.get(i).drawWall();
+            walls.get(i).drawObstacle();
+        }
+        for (int i = 0; i < numTrees; i++) {
+            trees.get(i).drawObstacle();
         }
     }
 

@@ -10,23 +10,17 @@ import bagel.*;
 import bagel.util.Point;
 import bagel.util.Rectangle;
 
-public class Wall {
-    private final Image wallImage = new Image("res/wall.png");
-
-    private Point coords;
-    private Rectangle rect;
+public class Wall extends Obstacle {
+    private final Image WALL_IMAGE = new Image("res/wall.png");
 
     public Wall(Point coords) {
-        this.coords = coords;
-        rect = new Rectangle(coords, wallImage.getWidth(), wallImage.getHeight());
+        super(coords);
+        boundary = new Rectangle(coords, WALL_IMAGE.getWidth(), WALL_IMAGE.getHeight());
     }
 
-    public Rectangle getRect() {
-        return rect;
-    }
 
     /* Draws a wall */
-    public void drawWall() {
-        wallImage.drawFromTopLeft(coords.x, coords.y);
+    public void drawObstacle() {
+        WALL_IMAGE.drawFromTopLeft(coords.x, coords.y);
     }
 }
