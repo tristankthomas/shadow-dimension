@@ -19,13 +19,13 @@ public class World {
     private ArrayList<Sinkhole> sinkholes = new ArrayList<Sinkhole>();
     private ArrayList<Tree> trees = new ArrayList<Tree>();
     private ArrayList<Wall> walls = new ArrayList<Wall>();
-    private ArrayList<PassiveDemon> passiveDemons = new ArrayList<PassiveDemon>();
-    private ArrayList<AggressiveDemon> aggressiveDemons = new ArrayList<AggressiveDemon>();
+    private ArrayList<Demon> demons = new ArrayList<Demon>();
     private Point topLeftBound;
     private Point botRightBound;
     private int numSinkholes = 0;
     private int numTrees = 0;
     private int numWalls = 0;
+    private int numDemons = 0;
     private final static int WALL_INTERSECT_OFFSET = 3;
 
     /* Initialises all the game entities of the world from a csv file */
@@ -65,9 +65,11 @@ public class World {
                         numTrees++;
                         break;
                     case "Navec":
-                        navec = new Navec();
+                        navec = new Navec(xCoord, yCoord);
                         break;
                     case "Demon":
+                        demons.add(new PassiveDemon(xCoord, yCoord));
+                        numDemons++;
                         break;
                     case "TopLeft":
                         topLeftBound = new Point(xCoord, yCoord);
@@ -94,12 +96,19 @@ public class World {
         for (int i = 0; i < numSinkholes; i++) {
             sinkholes.get(i).drawObstacle();
         }
-        for (int i = 0; i < numWalls; i++) {
-            walls.get(i).drawObstacle();
+        for (int j = 0; j < numWalls; j++) {
+            walls.get(j).drawObstacle();
         }
-        for (int i = 0; i < numTrees; i++) {
-            trees.get(i).drawObstacle();
+        for (int k = 0; k < numTrees; k++) {
+            trees.get(k).drawObstacle();
         }
+    }
+
+    public void drawDemons() {
+        for (int i = 0; i < numDemons; i++) {
+            demons.get(i).drawCharacter();
+        }
+        navec.drawCharacter();
     }
 
     /* Checks if player will hit the outside boundary depending on which direction Fae is moving */
@@ -121,50 +130,58 @@ public class World {
 
 
     /* Finds the edge of the wall that Fae intersects with */
-    private String pointCheck(Wall wall) {
-        Point topLeft = fae.getRect().topLeft();
-        Point botRight = fae.getRect().bottomRight();
+    private String pointCheck(Obstacle obstacle) {
+        Point topLeft = fae.getBoundary().topLeft();
+        Point botRight = fae.getBoundary().bottomRight();
         /* checks that either of the two points, 3 pixels in from Fae rectangle border, intersects with a wall and
            returns this edge */
-        if (wall.getRect().intersects(new Point(fae.getRect().right(), topLeft.y + WALL_INTERSECT_OFFSET)) ||
-                wall.getRect().intersects(new Point(fae.getRect().right(), botRight.y - WALL_INTERSECT_OFFSET)))
+        if (obstacle.getRect().intersects(new Point(fae.getBoundary().right(), topLeft.y + WALL_INTERSECT_OFFSET)) ||
+                obstacle.getRect().intersects(new Point(fae.getBoundary().right(), botRight.y - WALL_INTERSECT_OFFSET)))
             return "right";
 
-        else if (wall.getRect().intersects(new Point(fae.getRect().left(), topLeft.y + WALL_INTERSECT_OFFSET)) ||
-                wall.getRect().intersects(new Point(fae.getRect().left(), botRight.y - WALL_INTERSECT_OFFSET)))
+        else if (obstacle.getRect().intersects(new Point(fae.getBoundary().left(), topLeft.y + WALL_INTERSECT_OFFSET)) ||
+                obstacle.getRect().intersects(new Point(fae.getBoundary().left(), botRight.y - WALL_INTERSECT_OFFSET)))
             return "left";
 
-        else if (wall.getRect().intersects(new Point(topLeft.x + WALL_INTERSECT_OFFSET, fae.getRect().top())) ||
-                wall.getRect().intersects(new Point(botRight.x - WALL_INTERSECT_OFFSET, fae.getRect().top())))
+        else if (obstacle.getRect().intersects(new Point(topLeft.x + WALL_INTERSECT_OFFSET, fae.getBoundary().top())) ||
+                obstacle.getRect().intersects(new Point(botRight.x - WALL_INTERSECT_OFFSET, fae.getBoundary().top())))
             return "up";
 
-        else if (wall.getRect().intersects(new Point(topLeft.x + WALL_INTERSECT_OFFSET, fae.getRect().bottom())) ||
-                wall.getRect().intersects(new Point(botRight.x - WALL_INTERSECT_OFFSET, fae.getRect().bottom())))
+        else if (obstacle.getRect().intersects(new Point(topLeft.x + WALL_INTERSECT_OFFSET, fae.getBoundary().bottom())) ||
+                obstacle.getRect().intersects(new Point(botRight.x - WALL_INTERSECT_OFFSET, fae.getBoundary().bottom())))
             return "down";
 
         return "";
     }
 
     /* Checks if Fae is intersecting with any walls and returns true if face of wall hit is same as direction of Fae */
-    public boolean wallIntersect(String direction) {
-
+    public boolean obstacleIntersect(String direction) {
         /* iterates through all walls */
         for (Wall wall : walls) {
             /* checks if there's a wall intersection and that the intersected wall face is the same as the direction
                Fae is moving which is the only direction Fae shouldn't be able to move */
-            if (wall.getRect().intersects(fae.getRect()) && pointCheck(wall).equals(direction)) {
+            if (wall.getRect().intersects(fae.getBoundary()) && pointCheck(wall).equals(direction)) {
                 return true;
             }
         }
+        for (Tree tree : trees) {
+            /* checks if there's a wall intersection and that the intersected wall face is the same as the direction
+               Fae is moving which is the only direction Fae shouldn't be able to move */
+            if (tree.getRect().intersects(fae.getBoundary()) && pointCheck(tree).equals(direction)) {
+                return true;
+            }
+        }
+
         return false;
     }
+
 
     /* Checks if Fae intersects with any of the sinkholes and removes it if so */
     public boolean holeIntersect() {
         /* iterates through all sinkhole */
         for (int i = 0; i < numSinkholes; i++) {
             /* if fae intersects with any sinkhole remove it and decrement number of footpaths */
-            if (sinkholes.get(i).getRect().intersects(fae.getRect())) {
+            if (sinkholes.get(i).getRect().intersects(fae.getBoundary())) {
                 sinkholes.remove(i);
                 numSinkholes--;
                 return true;

@@ -109,6 +109,7 @@ public class ShadowDimension extends AbstractGame {
             level0Finish = true;
 
         } else if (level0.getFae().getHealth() <= 0) {
+
             /* lose screen */
             Point loseTextCoord = getCentredCoord(LOSE_MESSAGE);
             DEFAULT_FONT.drawString(LOSE_MESSAGE, loseTextCoord.x, loseTextCoord.y);
@@ -128,13 +129,11 @@ public class ShadowDimension extends AbstractGame {
                 level0.getFae().getHealthBar().updateColour(level0.getFae());
 
             }
-            /* sets the health bar colour */
-            level0.getFae().getHealthBar().setColour();
 
             /* renders player, obstacles and background */
             BACKGROUND_IMAGE0.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
 
-            level0.getFae().drawPlayer();
+            level0.getFae().drawCharacter();
             level0.drawObstacles();
 
         } else if (level1Start) {
@@ -158,8 +157,9 @@ public class ShadowDimension extends AbstractGame {
             /* renders player, obstacles and background */
             BACKGROUND_IMAGE1.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
 
-            level1.getFae().drawPlayer();
+            level1.getFae().drawCharacter();
             level1.drawObstacles();
+            level1.drawDemons();
 
         }
 

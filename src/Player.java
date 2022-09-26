@@ -10,112 +10,69 @@ import bagel.*;
 import bagel.util.Rectangle;
 
 public class Player extends Character {
-    private Image playerImage = new Image("res/fae/faeRight.png");
+    private final static String FAE_RIGHT = "res/fae/faeRight.png";
+    private final static String FAE_LEFT = "res/fae/faeLeft.png";
+    private final static String FAE_ATTACK_RIGHT = "res/fae/faeAttackRight.png";
+    private final static String FAE_ATTACK_LEFT = "res/fae/faeAttackLeft.png";
     private final static int MAX_HEALTH = 100;
     private final int HEALTH_X = 20;
     private final int HEALTH_Y = 25;
-
-    private int health = MAX_HEALTH;
-    private int xCoord;
-    private int yCoord;
-    private Rectangle rect;
-    private final static int STEP_SIZE = 2;
-
-    // keeps track of which direction Fae is facing
-    private boolean isRight = true;
+    private static final State INITIAL_STATE = State.IDLE;
+    private static final int MAX_HEALTH_POINTS = 100;
+    private static final int DAMAGE_POINTS = 20;
+    private final static int HEALTH_FONT_SIZE = 30;
+    private static final int MOVEMENT_SPEED = 2;
+    private static final int ATTACK_TIME_MS = 1000;
+    private static final int IDLE_TIME_MS = 2000;
 
     public Player() {
-        bar = new HealthBar(HEALTH_X, HEALTH_Y);
+        bar = new HealthBar(HEALTH_X, HEALTH_Y, HEALTH_FONT_SIZE);
+        currentImage = new Image(FAE_RIGHT);
+        maxHealth = MAX_HEALTH;
+        healthPoints = MAX_HEALTH;
+        state = INITIAL_STATE;
     }
 
-    public Rectangle getRect() {
-        return new Rectangle(xCoord, yCoord, playerImage.getWidth(), playerImage.getHeight());
-    }
-
-    /* Getters and setters */
-    public int getHealthPercentage() {
-        /* casts to double to stop floor division then casts back to int */
-        return (int) ((double) health / MAX_HEALTH * 100.0);
-    }
-
-    public int getHealth() {
-        return health;
-    }
-
-    public int getMaxHealth() {
-        return MAX_HEALTH;
-    }
-
-    public void setHealth(int health) {
-        // if health goes negative sets health to 0
-        this.health = (health <= 0) ? 0 : health;
-
-    }
-
-    public void setIsRight(boolean isRight) {
-        this.isRight = isRight;
-    }
-
-    public int getXCoord() {
-        return xCoord;
-    }
-
-    public int getYCoord() {
-        return yCoord;
-    }
-
-    public void setXCoord(int xCoord) {
-        this.xCoord = xCoord;
-    }
-
-    public void setYCoord(int yCoord) {
-        this.yCoord = yCoord;
-    }
-
-    public HealthBar getHealthBar() {
-        return bar;
-    }
 
     public void move(Input input, World gameWorld) {
         if (input.isDown(Keys.LEFT) && !gameWorld.atBoundary("left") &&
-                !gameWorld.wallIntersect("left")) {
+                !gameWorld.obstacleIntersect("left")) {
 
-            gameWorld.getFae().setXCoord(xCoord - STEP_SIZE);
-            gameWorld.getFae().setIsRight(false);
+            xCoord -= MOVEMENT_SPEED;
+            isRight = false;
 
         }
 
         if (input.isDown(Keys.RIGHT) && !gameWorld.atBoundary("right") &&
-                !gameWorld.wallIntersect("right")) {
+                !gameWorld.obstacleIntersect("right")) {
 
-            gameWorld.getFae().setXCoord(xCoord + STEP_SIZE);
-            gameWorld.getFae().setIsRight(true);
+            xCoord += MOVEMENT_SPEED;
+            isRight = true;
 
         }
 
         if (input.isDown(Keys.UP) && !gameWorld.atBoundary("up") &&
-                !gameWorld.wallIntersect("up")) {
+                !gameWorld.obstacleIntersect("up")) {
 
-            gameWorld.getFae().setYCoord(yCoord - STEP_SIZE);
+            yCoord -= MOVEMENT_SPEED;
 
         }
 
         if (input.isDown(Keys.DOWN) && !gameWorld.atBoundary("down") &&
-                !gameWorld.wallIntersect("down")) {
+                !gameWorld.obstacleIntersect("down")) {
 
-            gameWorld.getFae().setYCoord(yCoord + STEP_SIZE);
+            yCoord += MOVEMENT_SPEED;
 
         }
     }
     /* Draws player based on direction */
-    public void drawPlayer() {
+    @Override
+    public void drawCharacter() {
         /* draws the player in the direction it was last moving */
-        if (isRight) playerImage = new Image("res/fae/faeRight.png");
-        else playerImage = new Image("res/fae/faeLeft.png");
+        if (isRight) currentImage = new Image(FAE_RIGHT);
+        else currentImage = new Image(FAE_LEFT);
 
-        rect = new Rectangle(xCoord, yCoord, playerImage.getWidth(), playerImage.getHeight());
-        bar.drawHealth(this);
-        playerImage.drawFromTopLeft(xCoord, yCoord);
+        super.drawCharacter();
 
     }
 }
