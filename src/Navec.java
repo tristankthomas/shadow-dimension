@@ -19,6 +19,6 @@ public class Navec extends Demon {
         maxHealth = MAX_HEALTH_POINTS;
         currentImage = new Image(NAVEC_RIGHT);
     }
-    
+
 
 }

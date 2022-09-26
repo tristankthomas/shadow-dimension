@@ -15,6 +15,7 @@ public class Player extends Character {
     private final static String FAE_ATTACK_RIGHT = "res/fae/faeAttackRight.png";
     private final static String FAE_ATTACK_LEFT = "res/fae/faeAttackLeft.png";
     private final static int MAX_HEALTH = 100;
+    private boolean isCooldown = false;
     private final int HEALTH_X = 20;
     private final int HEALTH_Y = 25;
     private static final State INITIAL_STATE = State.IDLE;
@@ -65,14 +66,49 @@ public class Player extends Character {
 
         }
     }
+
+    public static int getAttackTimeMs() {
+        return ATTACK_TIME_MS;
+    }
+
+    public static int getDamagePoints() {
+        return DAMAGE_POINTS;
+    }
+
+    public static int getIdleTimeMs() {
+        return IDLE_TIME_MS;
+    }
+
+    public boolean getIsCoolDown() {
+        return isCooldown;
+    }
+
+    public void setIsCoolDown(boolean isCoolDown) {
+        this.isCooldown = isCoolDown;
+    }
+
+
     /* Draws player based on direction */
     @Override
     public void drawCharacter() {
         /* draws the player in the direction it was last moving */
-        if (isRight) currentImage = new Image(FAE_RIGHT);
-        else currentImage = new Image(FAE_LEFT);
+        switch (state) {
+            case IDLE:
+                if (isRight) currentImage = new Image(FAE_RIGHT);
+                else currentImage = new Image(FAE_LEFT);
+                break;
+            case ATTACK:
+                if (isRight) currentImage = new Image(FAE_ATTACK_RIGHT);
+                else currentImage = new Image(FAE_ATTACK_LEFT);
+                break;
+        }
 
         super.drawCharacter();
 
+    }
+
+    public void attack(World world) {
+        state = State.ATTACK;
+        world.demonIntersect();
     }
 }

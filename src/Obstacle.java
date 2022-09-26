@@ -10,7 +10,7 @@ public abstract class Obstacle {
     }
     public abstract void drawObstacle();
 
-    public Rectangle getRect() {
+    public Rectangle getBoundary() {
         return boundary;
     }
 }

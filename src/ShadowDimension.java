@@ -41,7 +41,8 @@ public class ShadowDimension extends AbstractGame {
     private final int INSTRUCTION2_X = 350;
     private final int INSTRUCTION2_Y = 350;
 
-    private int frameCount = 0;
+    private int levelFrameCount = 0;
+    private int characterFrameCount = 0;
     private static final int LEVEL_COMPLETE_TIME_MS = 3000;
 
     /* World object representing level 0 of Shadow Dimension */
@@ -88,7 +89,7 @@ public class ShadowDimension extends AbstractGame {
             DEFAULT_FONT.drawString(GAME_TITLE, TITLE_X, TITLE_Y);
             INSTRUCTION_FONT.drawString(INSTRUCTION1, INSTRUCTION1_X, INSTRUCTION1_Y);
 
-        } else if (!level1Start && level0Finish && frameCount == 0) {
+        } else if (!level1Start && level0Finish && levelFrameCount == 0) {
             /* waits for game to start */
             if (input.wasPressed(Keys.SPACE)) {
                 /* game has started */
@@ -99,16 +100,16 @@ public class ShadowDimension extends AbstractGame {
             /* level 1 screen */
             INSTRUCTION_FONT.drawString(INSTRUCTION2, INSTRUCTION2_X, INSTRUCTION2_Y);
 
-        } else if ((level0.getFae().getXCoord() >= PORTAL_X && level0.getFae().getYCoord() >= PORTAL_Y && level0Start) || (input.wasPressed(Keys.W) && level0Start) || frameCount != 0) {
-            /* win screen */
-            Point winTextCoord = getCentredCoord(WIN_LEVEL_MESSAGE);
+        } else if ((level0.getFae().getXCoord() >= PORTAL_X && level0.getFae().getYCoord() >= PORTAL_Y && level0Start) || (input.wasPressed(Keys.W) && level0Start) || levelFrameCount != 0) {
+            /* level win screen */
+            Point levelWinTextCoord = getCentredCoord(WIN_LEVEL_MESSAGE);
             /* counts the number of frames (for 3 seconds) */
-            frameCount = ((int) frameCount / Character.getFramesPerMs() != LEVEL_COMPLETE_TIME_MS) ? frameCount + 1 : 0;
-            DEFAULT_FONT.drawString(WIN_LEVEL_MESSAGE, winTextCoord.x, winTextCoord.y);
+            levelFrameCount = (levelFrameCount / Character.getFramesPerMs() != LEVEL_COMPLETE_TIME_MS) ? levelFrameCount + 1 : 0;
+            DEFAULT_FONT.drawString(WIN_LEVEL_MESSAGE, levelWinTextCoord.x, levelWinTextCoord.y);
             level0Start = false;
             level0Finish = true;
 
-        } else if (level0.getFae().getHealth() <= 0) {
+        }else if (World.getFae().isDead()) {
 
             /* lose screen */
             Point loseTextCoord = getCentredCoord(LOSE_MESSAGE);
@@ -116,50 +117,78 @@ public class ShadowDimension extends AbstractGame {
 
         } else if (level0Start) {
             /* moves player if not at a boundary and arrow keys are pressed */
-            level0.getFae().move(input, level0);
+            World.getFae().move(input, level0);
 
             /* if a hole is intersected by Fae */
             if (level0.holeIntersect()) {
-
-                level0.getFae().setHealth(level0.getFae().getHealth() - Sinkhole.getDamagePoints());
+                // ADD THIS CODE TO A DIFFERENT CLASS PERHAPS SINKHOLE CLASS
+                World.getFae().setHealth(World.getFae().getHealth() - Sinkhole.getDamagePoints());
                 /* prints out player health to console */
                 System.out.printf("Sinkhole inflicts %d damage points on Fae. Fae's current health: %d/%d\n",
-                        Sinkhole.getDamagePoints(), level0.getFae().getHealth(), level0.getFae().getMaxHealth());
+                        Sinkhole.getDamagePoints(), World.getFae().getHealth(), World.getFae().getMaxHealth());
 
-                level0.getFae().getHealthBar().updateColour(level0.getFae());
+                World.getFae().getHealthBar().updateColour(World.getFae());
 
             }
 
             /* renders player, obstacles and background */
             BACKGROUND_IMAGE0.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
 
-            level0.getFae().drawCharacter();
             level0.drawObstacles();
+            World.getFae().drawCharacter();
+
 
         } else if (level1Start) {
             /* moves player if not at a boundary and arrow keys are pressed */
-            level1.getFae().move(input, level1);
+            World.getFae().move(input, level1);
+
+            if ((input.wasPressed(Keys.A) && !World.getFae().getIsCoolDown()) || World.getFae().state == State.ATTACK) {
+                World.getFae().attack(level1);
+                if (characterFrameCount / Character.getFramesPerMs() == Player.getAttackTimeMs()) {
+                    characterFrameCount = 0;
+                    World.getFae().setIsCoolDown(true);
+                    World.getFae().state = State.IDLE;
+                } else {
+                    characterFrameCount += 1;
+                }
+            }
+
+            if (World.getFae().getIsCoolDown()) {
+                if (characterFrameCount / Character.getFramesPerMs() == Player.getIdleTimeMs()) {
+                    characterFrameCount = 0;
+                    World.getFae().setIsCoolDown(false);
+                } else {
+                    characterFrameCount += 1;
+                }
+            }
 
             /* if a hole is intersected by Fae */
             if (level1.holeIntersect()) {
 
-                level1.getFae().setHealth(level1.getFae().getHealth() - Sinkhole.getDamagePoints());
+                World.getFae().setHealth(World.getFae().getHealth() - Sinkhole.getDamagePoints());
                 /* prints out player health to console */
                 System.out.printf("Sinkhole inflicts %d damage points on Fae. Fae's current health: %d/%d\n",
-                        Sinkhole.getDamagePoints(), level1.getFae().getHealth(), level1.getFae().getMaxHealth());
+                        Sinkhole.getDamagePoints(), World.getFae().getHealth(), World.getFae().getMaxHealth());
 
-                level1.getFae().getHealthBar().updateColour(level1.getFae());
+                World.getFae().getHealthBar().updateColour(World.getFae());
 
             }
             /* sets the health bar colour */
-            level1.getFae().getHealthBar().setColour();
+            World.getFae().getHealthBar().setColour();
 
             /* renders player, obstacles and background */
             BACKGROUND_IMAGE1.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
 
-            level1.getFae().drawCharacter();
-            level1.drawObstacles();
             level1.drawDemons();
+            level1.drawObstacles();
+            World.getFae().drawCharacter();
+
+
+
+        } else if (level1.getNavec().isDead()) {
+            /* win screen */
+            Point winTextCoord = getCentredCoord(WIN_MESSAGE);
+            DEFAULT_FONT.drawString(WIN_MESSAGE, winTextCoord.x, winTextCoord.y);
 
         }
 

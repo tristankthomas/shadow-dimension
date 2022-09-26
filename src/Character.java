@@ -70,6 +70,10 @@ public abstract class Character {
         return FRAMES_PER_MS;
     }
 
+    public boolean isDead() {
+        return healthPoints <= 0;
+    }
+
     public void drawCharacter() {
 
         bar.drawHealth(this);

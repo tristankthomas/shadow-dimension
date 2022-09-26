@@ -87,8 +87,12 @@ public class World {
         }
     }
 
-    public Player getFae() {
+    public static Player getFae() {
         return fae;
+    }
+
+    public Navec getNavec() {
+        return navec;
     }
 
     /* Draws all the obstacles stored in arrays */
@@ -135,20 +139,20 @@ public class World {
         Point botRight = fae.getBoundary().bottomRight();
         /* checks that either of the two points, 3 pixels in from Fae rectangle border, intersects with a wall and
            returns this edge */
-        if (obstacle.getRect().intersects(new Point(fae.getBoundary().right(), topLeft.y + WALL_INTERSECT_OFFSET)) ||
-                obstacle.getRect().intersects(new Point(fae.getBoundary().right(), botRight.y - WALL_INTERSECT_OFFSET)))
+        if (obstacle.getBoundary().intersects(new Point(fae.getBoundary().right(), topLeft.y + WALL_INTERSECT_OFFSET)) ||
+                obstacle.getBoundary().intersects(new Point(fae.getBoundary().right(), botRight.y - WALL_INTERSECT_OFFSET)))
             return "right";
 
-        else if (obstacle.getRect().intersects(new Point(fae.getBoundary().left(), topLeft.y + WALL_INTERSECT_OFFSET)) ||
-                obstacle.getRect().intersects(new Point(fae.getBoundary().left(), botRight.y - WALL_INTERSECT_OFFSET)))
+        else if (obstacle.getBoundary().intersects(new Point(fae.getBoundary().left(), topLeft.y + WALL_INTERSECT_OFFSET)) ||
+                obstacle.getBoundary().intersects(new Point(fae.getBoundary().left(), botRight.y - WALL_INTERSECT_OFFSET)))
             return "left";
 
-        else if (obstacle.getRect().intersects(new Point(topLeft.x + WALL_INTERSECT_OFFSET, fae.getBoundary().top())) ||
-                obstacle.getRect().intersects(new Point(botRight.x - WALL_INTERSECT_OFFSET, fae.getBoundary().top())))
+        else if (obstacle.getBoundary().intersects(new Point(topLeft.x + WALL_INTERSECT_OFFSET, fae.getBoundary().top())) ||
+                obstacle.getBoundary().intersects(new Point(botRight.x - WALL_INTERSECT_OFFSET, fae.getBoundary().top())))
             return "up";
 
-        else if (obstacle.getRect().intersects(new Point(topLeft.x + WALL_INTERSECT_OFFSET, fae.getBoundary().bottom())) ||
-                obstacle.getRect().intersects(new Point(botRight.x - WALL_INTERSECT_OFFSET, fae.getBoundary().bottom())))
+        else if (obstacle.getBoundary().intersects(new Point(topLeft.x + WALL_INTERSECT_OFFSET, fae.getBoundary().bottom())) ||
+                obstacle.getBoundary().intersects(new Point(botRight.x - WALL_INTERSECT_OFFSET, fae.getBoundary().bottom())))
             return "down";
 
         return "";
@@ -160,14 +164,14 @@ public class World {
         for (Wall wall : walls) {
             /* checks if there's a wall intersection and that the intersected wall face is the same as the direction
                Fae is moving which is the only direction Fae shouldn't be able to move */
-            if (wall.getRect().intersects(fae.getBoundary()) && pointCheck(wall).equals(direction)) {
+            if (wall.getBoundary().intersects(fae.getBoundary()) && pointCheck(wall).equals(direction)) {
                 return true;
             }
         }
         for (Tree tree : trees) {
             /* checks if there's a wall intersection and that the intersected wall face is the same as the direction
                Fae is moving which is the only direction Fae shouldn't be able to move */
-            if (tree.getRect().intersects(fae.getBoundary()) && pointCheck(tree).equals(direction)) {
+            if (tree.getBoundary().intersects(fae.getBoundary()) && pointCheck(tree).equals(direction)) {
                 return true;
             }
         }
@@ -181,7 +185,7 @@ public class World {
         /* iterates through all sinkhole */
         for (int i = 0; i < numSinkholes; i++) {
             /* if fae intersects with any sinkhole remove it and decrement number of footpaths */
-            if (sinkholes.get(i).getRect().intersects(fae.getBoundary())) {
+            if (sinkholes.get(i).getBoundary().intersects(fae.getBoundary())) {
                 sinkholes.remove(i);
                 numSinkholes--;
                 return true;
@@ -189,4 +193,23 @@ public class World {
         }
         return false;
     }
+
+    public void demonIntersect() {
+        Demon current;
+        for (int i = 0; i < numDemons; i++) {
+            current = demons.get(i);
+            if (current.getBoundary().intersects(fae.getBoundary())) {
+                current.setHealth(current.getHealth() - fae.getDamagePoints());
+                if (current.isDead()) {
+                    demons.remove(i);
+                    numDemons--;
+                }
+            }
+        }
+        if (navec.getBoundary().intersects(fae.getBoundary())) {
+            navec.setHealth(navec.getHealth() - fae.getDamagePoints());
+        }
+    }
+
+
 }
