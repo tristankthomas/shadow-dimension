@@ -14,10 +14,10 @@ public class HealthBar {
 
     private DrawOptions healthOptions = new DrawOptions();
 
-    private int xCoord;
-    private int yCoord;
+    private double xCoord;
+    private double yCoord;
 
-    public HealthBar(int x, int y, int fontSize) {
+    public HealthBar(double x, double y, int fontSize) {
         this.fontSize = fontSize;
         healthFont = new Font("res/frostbite.ttf", fontSize);
         xCoord = x;
@@ -25,7 +25,7 @@ public class HealthBar {
     }
     // change to character
     public void drawHealth(Character character) {
-        this.setColour();
+        setColour();
         healthFont.drawString(String.format("%d%%", character.getHealthPercentage()), xCoord, yCoord,
                 healthOptions);
     }
@@ -40,6 +40,14 @@ public class HealthBar {
             /* change colour to orange when medium health */
             healthColour = ORANGE;
         }
+    }
+
+    public void setXCoord(double xCoord) {
+        this.xCoord = xCoord;
+    }
+
+    public void setYCoord(double yCoord) {
+        this.yCoord = yCoord;
     }
 
     public void setColour() {

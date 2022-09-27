@@ -8,7 +8,7 @@ public class PassiveDemon extends Demon {
     private final static int MAX_HEALTH_POINTS = 40;
     private final static int ATTACK_RANGE = 150;
 
-    public PassiveDemon(int xCoord, int yCoord) {
+    public PassiveDemon(double xCoord, double yCoord) {
         super(xCoord, yCoord);
         healthPoints = MAX_HEALTH_POINTS;
         maxHealth = MAX_HEALTH_POINTS;

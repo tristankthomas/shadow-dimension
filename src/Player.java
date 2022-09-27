@@ -22,7 +22,7 @@ public class Player extends Character {
     private static final int MAX_HEALTH_POINTS = 100;
     private static final int DAMAGE_POINTS = 20;
     private final static int HEALTH_FONT_SIZE = 30;
-    private static final int MOVEMENT_SPEED = 2;
+    private static final double MOVEMENT_SPEED = 2.0;
     private static final int ATTACK_TIME_MS = 1000;
     private static final int IDLE_TIME_MS = 2000;
 
@@ -32,59 +32,48 @@ public class Player extends Character {
         maxHealth = MAX_HEALTH_POINTS;
         healthPoints = MAX_HEALTH_POINTS;
         state = INITIAL_STATE;
+        movementSpeed = MOVEMENT_SPEED;
     }
 
 
     public void move(Input input, World gameWorld) {
-        if (input.isDown(Keys.LEFT) && !gameWorld.atBoundary("left") &&
-                !gameWorld.obstacleIntersect("left")) {
+        if (input.isDown(Keys.LEFT) && !gameWorld.atBoundary("left", this) &&
+                !gameWorld.obstacleIntersect("left", this)) {
 
             xCoord -= MOVEMENT_SPEED;
             isRight = false;
 
         }
 
-        if (input.isDown(Keys.RIGHT) && !gameWorld.atBoundary("right") &&
-                !gameWorld.obstacleIntersect("right")) {
+        if (input.isDown(Keys.RIGHT) && !gameWorld.atBoundary("right", this) &&
+                !gameWorld.obstacleIntersect("right", this)) {
 
             xCoord += MOVEMENT_SPEED;
             isRight = true;
 
         }
 
-        if (input.isDown(Keys.UP) && !gameWorld.atBoundary("up") &&
-                !gameWorld.obstacleIntersect("up")) {
+        if (input.isDown(Keys.UP) && !gameWorld.atBoundary("up", this) &&
+                !gameWorld.obstacleIntersect("up", this)) {
 
             yCoord -= MOVEMENT_SPEED;
 
         }
 
-        if (input.isDown(Keys.DOWN) && !gameWorld.atBoundary("down") &&
-                !gameWorld.obstacleIntersect("down")) {
+        if (input.isDown(Keys.DOWN) && !gameWorld.atBoundary("down", this) &&
+                !gameWorld.obstacleIntersect("down", this)) {
 
             yCoord += MOVEMENT_SPEED;
 
         }
     }
 
-    public static int getAttackTimeMs() {
-        return ATTACK_TIME_MS;
-    }
-
     public static int getDamagePoints() {
         return DAMAGE_POINTS;
     }
 
-    public static int getIdleTimeMs() {
-        return IDLE_TIME_MS;
-    }
-
     public boolean getIsCoolDown() {
         return isCooldown;
-    }
-
-    public void setIsCoolDown(boolean isCoolDown) {
-        this.isCooldown = isCoolDown;
     }
 
 
@@ -109,7 +98,7 @@ public class Player extends Character {
 
     public void attack(World world) {
         state = State.ATTACK;
-        world.demonIntersect();
+        world.faeDemonIntersect();
 
         if (frameCount / FRAMES_PER_MS == ATTACK_TIME_MS) {
             frameCount = 0;

@@ -119,14 +119,12 @@ public class ShadowDimension extends AbstractGame {
             World.getFae().move(input, level0);
 
             /* if a hole is intersected by Fae */
-            if (level0.holeIntersect()) {
+            if (level0.holeIntersect(World.getFae())) {
                 // ADD THIS CODE TO A DIFFERENT CLASS PERHAPS SINKHOLE CLASS
                 World.getFae().setHealth(World.getFae().getHealth() - Sinkhole.getDamagePoints());
                 /* prints out player health to console */
                 System.out.printf("Sinkhole inflicts %d damage points on Fae. Fae's current health: %d/%d\n",
                         Sinkhole.getDamagePoints(), World.getFae().getHealth(), World.getFae().getMaxHealth());
-
-                World.getFae().getHealthBar().updateColour(World.getFae());
 
             }
 
@@ -158,20 +156,16 @@ public class ShadowDimension extends AbstractGame {
             }
 
             level1.demonInvincible();
+            level1.demonsMove();
 
             /* if a hole is intersected by Fae */
-            if (level1.holeIntersect()) {
+            if (level1.holeIntersect(World.getFae())) {
 
                 World.getFae().setHealth(World.getFae().getHealth() - Sinkhole.getDamagePoints());
                 /* prints out player health to console */
                 System.out.printf("Sinkhole inflicts %d damage points on Fae. Fae's current health: %d/%d\n",
                         Sinkhole.getDamagePoints(), World.getFae().getHealth(), World.getFae().getMaxHealth());
-
-                World.getFae().getHealthBar().updateColour(World.getFae());
-
             }
-            /* sets the health bar colour */
-            World.getFae().getHealthBar().setColour();
 
             /* renders player, obstacles and background */
             BACKGROUND_IMAGE1.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);

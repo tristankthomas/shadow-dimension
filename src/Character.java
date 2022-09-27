@@ -12,31 +12,35 @@ import bagel.util.Rectangle;
 public abstract class Character {
     private static final int FRAME_RATE_HZ = 60;
     protected static final double FRAMES_PER_MS = (double) FRAME_RATE_HZ / 1000;
-    private static final int INVINCIBLE_TIME_MS = 2000;
-    protected int xCoord;
-    protected int yCoord;
+    private static final int INVINCIBLE_TIME_MS = 3000;
+    protected double xCoord;
+    protected double yCoord;
     protected int healthPoints;
     protected int frameCount = 0;
     protected int maxHealth;
+    protected double movementSpeed;
     protected HealthBar bar;
     protected Image currentImage;
     protected State state;
     /* keeps track of which direction Fae is facing */
     protected boolean isRight = true;
 
-    public int getXCoord() {
+    public double getXCoord() {
         return xCoord;
     }
 
-    public int getYCoord() {
+    public double getYCoord() {
         return yCoord;
     }
+    public Image getCurrentImage() {
+        return currentImage;
+    }
 
-    public void setXCoord(int xCoord) {
+    public void setXCoord(double xCoord) {
         this.xCoord = xCoord;
     }
 
-    public void setYCoord(int yCoord) {
+    public void setYCoord(double yCoord) {
         this.yCoord = yCoord;
     }
 
@@ -61,10 +65,6 @@ public abstract class Character {
 
     }
 
-    protected HealthBar getHealthBar() {
-        return bar;
-    }
-
     public static double getFramesPerMs() {
         return FRAMES_PER_MS;
     }
@@ -74,7 +74,7 @@ public abstract class Character {
     }
 
     public void drawCharacter() {
-
+        bar.updateColour(this);
         bar.drawHealth(this);
         currentImage.drawFromTopLeft(xCoord, yCoord);
     }
