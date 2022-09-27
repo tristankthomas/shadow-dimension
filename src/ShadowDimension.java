@@ -42,7 +42,6 @@ public class ShadowDimension extends AbstractGame {
     private final int INSTRUCTION2_Y = 350;
 
     private int levelFrameCount = 0;
-    private int characterFrameCount = 0;
     private static final int LEVEL_COMPLETE_TIME_MS = 3000;
 
     /* World object representing level 0 of Shadow Dimension */
@@ -138,29 +137,27 @@ public class ShadowDimension extends AbstractGame {
             World.getFae().drawCharacter();
 
 
-        } else if (level1Start) {
+        } else if (level1.getNavec().isDead()) {
+            /* win screen */
+            Point winTextCoord = getCentredCoord(WIN_MESSAGE);
+            DEFAULT_FONT.drawString(WIN_MESSAGE, winTextCoord.x, winTextCoord.y);
+
+        }
+
+        else if (level1Start) {
             /* moves player if not at a boundary and arrow keys are pressed */
             World.getFae().move(input, level1);
 
             if ((input.wasPressed(Keys.A) && !World.getFae().getIsCoolDown()) || World.getFae().state == State.ATTACK) {
                 World.getFae().attack(level1);
-                if (characterFrameCount / Character.getFramesPerMs() == Player.getAttackTimeMs()) {
-                    characterFrameCount = 0;
-                    World.getFae().setIsCoolDown(true);
-                    World.getFae().state = State.IDLE;
-                } else {
-                    characterFrameCount += 1;
-                }
+
             }
 
             if (World.getFae().getIsCoolDown()) {
-                if (characterFrameCount / Character.getFramesPerMs() == Player.getIdleTimeMs()) {
-                    characterFrameCount = 0;
-                    World.getFae().setIsCoolDown(false);
-                } else {
-                    characterFrameCount += 1;
-                }
+                World.getFae().cooldown();
             }
+
+            level1.demonInvincible();
 
             /* if a hole is intersected by Fae */
             if (level1.holeIntersect()) {
@@ -184,11 +181,6 @@ public class ShadowDimension extends AbstractGame {
             World.getFae().drawCharacter();
 
 
-
-        } else if (level1.getNavec().isDead()) {
-            /* win screen */
-            Point winTextCoord = getCentredCoord(WIN_MESSAGE);
-            DEFAULT_FONT.drawString(WIN_MESSAGE, winTextCoord.x, winTextCoord.y);
 
         }
 

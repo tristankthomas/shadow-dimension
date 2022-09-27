@@ -11,10 +11,12 @@ import bagel.util.Rectangle;
 
 public abstract class Character {
     private static final int FRAME_RATE_HZ = 60;
-    private static final double FRAMES_PER_MS = (double) FRAME_RATE_HZ / 1000;
+    protected static final double FRAMES_PER_MS = (double) FRAME_RATE_HZ / 1000;
+    private static final int INVINCIBLE_TIME_MS = 2000;
     protected int xCoord;
     protected int yCoord;
     protected int healthPoints;
+    protected int frameCount = 0;
     protected int maxHealth;
     protected HealthBar bar;
     protected Image currentImage;
@@ -36,9 +38,6 @@ public abstract class Character {
 
     public void setYCoord(int yCoord) {
         this.yCoord = yCoord;
-    }
-    public void setIsRight(boolean isRight) {
-        this.isRight = isRight;
     }
 
     public int getHealth() {
@@ -62,7 +61,7 @@ public abstract class Character {
 
     }
 
-    public HealthBar getHealthBar() {
+    protected HealthBar getHealthBar() {
         return bar;
     }
 
@@ -78,6 +77,16 @@ public abstract class Character {
 
         bar.drawHealth(this);
         currentImage.drawFromTopLeft(xCoord, yCoord);
+    }
+
+    protected void invincible() {
+        state = State.INVISIBLE;
+        if (frameCount / FRAMES_PER_MS == INVINCIBLE_TIME_MS) {
+            frameCount = 0;
+            state = State.ATTACK;
+        } else {
+            frameCount++;
+        }
     }
 
 }

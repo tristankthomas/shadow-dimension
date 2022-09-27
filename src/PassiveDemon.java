@@ -15,5 +15,23 @@ public class PassiveDemon extends Demon {
         currentImage = new Image(DEMON_RIGHT);
     }
 
+    @Override
+    public void drawCharacter() {
+        /* draws the player in the direction it was last moving */
+        switch (state) {
+            case ATTACK:
+                if (isRight) currentImage = new Image(DEMON_RIGHT);
+                else currentImage = new Image(DEMON_LEFT);
+                break;
+            case INVISIBLE:
+                if (isRight) currentImage = new Image(DEMON_INVINSIBLE_RIGHT);
+                else currentImage = new Image(DEMON_INVINSIBLE_LEFT);
+                break;
+        }
+
+        super.drawCharacter();
+
+    }
+
 
 }

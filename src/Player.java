@@ -14,8 +14,8 @@ public class Player extends Character {
     private final static String FAE_LEFT = "res/fae/faeLeft.png";
     private final static String FAE_ATTACK_RIGHT = "res/fae/faeAttackRight.png";
     private final static String FAE_ATTACK_LEFT = "res/fae/faeAttackLeft.png";
-    private final static int MAX_HEALTH = 100;
     private boolean isCooldown = false;
+
     private final int HEALTH_X = 20;
     private final int HEALTH_Y = 25;
     private static final State INITIAL_STATE = State.IDLE;
@@ -29,8 +29,8 @@ public class Player extends Character {
     public Player() {
         bar = new HealthBar(HEALTH_X, HEALTH_Y, HEALTH_FONT_SIZE);
         currentImage = new Image(FAE_RIGHT);
-        maxHealth = MAX_HEALTH;
-        healthPoints = MAX_HEALTH;
+        maxHealth = MAX_HEALTH_POINTS;
+        healthPoints = MAX_HEALTH_POINTS;
         state = INITIAL_STATE;
     }
 
@@ -110,5 +110,25 @@ public class Player extends Character {
     public void attack(World world) {
         state = State.ATTACK;
         world.demonIntersect();
+
+        if (frameCount / FRAMES_PER_MS == ATTACK_TIME_MS) {
+            frameCount = 0;
+            isCooldown = true;
+            state = State.IDLE;
+        } else {
+            frameCount++;
+        }
+
+    }
+
+    public void cooldown() {
+
+        if (frameCount / FRAMES_PER_MS == IDLE_TIME_MS) {
+            frameCount = 0;
+            isCooldown = false;
+        } else {
+            frameCount++;
+        }
+
     }
 }

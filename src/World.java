@@ -198,17 +198,30 @@ public class World {
         Demon current;
         for (int i = 0; i < numDemons; i++) {
             current = demons.get(i);
-            if (current.getBoundary().intersects(fae.getBoundary())) {
+            if (current.getBoundary().intersects(fae.getBoundary()) && current.state != State.INVISIBLE) {
                 current.setHealth(current.getHealth() - fae.getDamagePoints());
                 if (current.isDead()) {
                     demons.remove(i);
                     numDemons--;
                 }
+                current.invincible();
             }
         }
-        if (navec.getBoundary().intersects(fae.getBoundary())) {
+        if (navec.getBoundary().intersects(fae.getBoundary()) && navec.state != State.INVISIBLE) {
             navec.setHealth(navec.getHealth() - fae.getDamagePoints());
+            navec.invincible();
         }
+
+    }
+
+    public void demonInvincible() {
+        for (Demon demon : demons) {
+            if (demon.state == State.INVISIBLE) {
+                demon.invincible();
+
+            }
+        }
+        if (navec.state == State.INVISIBLE) navec.invincible();
     }
 
 

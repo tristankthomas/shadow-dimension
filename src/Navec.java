@@ -20,5 +20,23 @@ public class Navec extends Demon {
         currentImage = new Image(NAVEC_RIGHT);
     }
 
+    @Override
+    public void drawCharacter() {
+        /* draws the player in the direction it was last moving */
+        switch (state) {
+            case ATTACK:
+                if (isRight) currentImage = new Image(NAVEC_RIGHT);
+                else currentImage = new Image(NAVEC_LEFT);
+                break;
+            case INVISIBLE:
+                if (isRight) currentImage = new Image(NAVEC_INVINSIBLE_RIGHT);
+                else currentImage = new Image(NAVEC_INVINSIBLE_LEFT);
+                break;
+        }
+
+        super.drawCharacter();
+
+    }
+
 
 }
