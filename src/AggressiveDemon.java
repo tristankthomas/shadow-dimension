@@ -8,7 +8,6 @@ public class AggressiveDemon extends Demon {
     private final static String DEMON_RIGHT = "res/demon/demonRight.png";
     private final static double LOWER_SPEED = 0.2;
     private final static double UPPER_SPEED = 0.7;
-    private Random random = new Random();
 
     private final static int MAX_HEALTH_POINTS = 40;
     private final static int ATTACK_RANGE = 150;
@@ -17,9 +16,11 @@ public class AggressiveDemon extends Demon {
         super(xCoord, yCoord);
         healthPoints = MAX_HEALTH_POINTS;
         maxHealth = MAX_HEALTH_POINTS;
+        attackRange = ATTACK_RANGE;
         currentImage = new Image(DEMON_RIGHT);
         movementSpeed = LOWER_SPEED + (random.nextDouble() * (UPPER_SPEED - LOWER_SPEED));
         canMove = true;
+        fire = new DemonFire();
         switch (random.nextInt(4)) {
             case 0:
                 direction = "right";
@@ -34,7 +35,8 @@ public class AggressiveDemon extends Demon {
                 direction = "down";
                 break;
         }
-        System.out.println("created");
+
+
     }
 
     @Override
@@ -54,6 +56,8 @@ public class AggressiveDemon extends Demon {
         super.drawCharacter();
 
     }
+
+
 
 
 }

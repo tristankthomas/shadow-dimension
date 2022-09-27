@@ -17,9 +17,11 @@ public class Navec extends Demon {
         super(xCoord, yCoord);
         healthPoints = MAX_HEALTH_POINTS;
         maxHealth = MAX_HEALTH_POINTS;
+        attackRange = ATTACK_RANGE;
         currentImage = new Image(NAVEC_RIGHT);
         movementSpeed = LOWER_SPEED + (random.nextDouble() * (UPPER_SPEED - LOWER_SPEED));
         canMove = true;
+        fire = new NavecFire();
         switch (random.nextInt(4)) {
             case 0:
                 direction = "right";
@@ -34,6 +36,8 @@ public class Navec extends Demon {
                 direction = "down";
                 break;
         }
+
+
 
     }
 

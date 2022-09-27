@@ -12,7 +12,10 @@ public class PassiveDemon extends Demon {
         super(xCoord, yCoord);
         healthPoints = MAX_HEALTH_POINTS;
         maxHealth = MAX_HEALTH_POINTS;
+        attackRange = ATTACK_RANGE;
         currentImage = new Image(DEMON_RIGHT);
+        isRight = (random.nextBoolean()) ? true : false;
+        fire = new DemonFire();
     }
 
     @Override

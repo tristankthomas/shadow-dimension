@@ -8,6 +8,7 @@
 
 import bagel.Image;
 import bagel.util.Rectangle;
+import bagel.util.Point;
 
 public abstract class Character {
     private static final int FRAME_RATE_HZ = 60;
@@ -15,6 +16,7 @@ public abstract class Character {
     private static final int INVINCIBLE_TIME_MS = 3000;
     protected double xCoord;
     protected double yCoord;
+    protected int damagePoints;
     protected int healthPoints;
     protected int frameCount = 0;
     protected int maxHealth;
@@ -34,6 +36,10 @@ public abstract class Character {
     }
     public Image getCurrentImage() {
         return currentImage;
+    }
+
+    public int getDamagePoints() {
+        return damagePoints;
     }
 
     public void setXCoord(double xCoord) {
@@ -59,6 +65,10 @@ public abstract class Character {
         return (int) ((double) healthPoints / maxHealth * 100.0);
     }
 
+    public Point getCentredCoord() {
+        return new Point(xCoord + (currentImage.getWidth() / 2), yCoord + (currentImage.getHeight() / 2));
+    }
+
     public void setHealth(int health) {
         /* if health goes negative sets health to 0 */
         this.healthPoints = (health <= 0) ? 0 : health;
@@ -76,6 +86,7 @@ public abstract class Character {
     public void drawCharacter() {
         bar.updateColour(this);
         bar.drawHealth(this);
+
         currentImage.drawFromTopLeft(xCoord, yCoord);
     }
 

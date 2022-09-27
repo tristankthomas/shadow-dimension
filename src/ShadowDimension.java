@@ -115,6 +115,7 @@ public class ShadowDimension extends AbstractGame {
             DEFAULT_FONT.drawString(LOSE_MESSAGE, loseTextCoord.x, loseTextCoord.y);
 
         } else if (level0Start) {
+            BACKGROUND_IMAGE0.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
             /* moves player if not at a boundary and arrow keys are pressed */
             World.getFae().move(input, level0);
 
@@ -129,7 +130,6 @@ public class ShadowDimension extends AbstractGame {
             }
 
             /* renders player, obstacles and background */
-            BACKGROUND_IMAGE0.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
 
             level0.drawObstacles();
             World.getFae().drawCharacter();
@@ -143,6 +143,8 @@ public class ShadowDimension extends AbstractGame {
         }
 
         else if (level1Start) {
+
+            BACKGROUND_IMAGE1.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
             /* moves player if not at a boundary and arrow keys are pressed */
             World.getFae().move(input, level1);
 
@@ -157,6 +159,9 @@ public class ShadowDimension extends AbstractGame {
 
             level1.demonInvincible();
             level1.demonsMove();
+            level1.proximityCheck();
+
+
 
             /* if a hole is intersected by Fae */
             if (level1.holeIntersect(World.getFae())) {
@@ -168,10 +173,9 @@ public class ShadowDimension extends AbstractGame {
             }
 
             /* renders player, obstacles and background */
-            BACKGROUND_IMAGE1.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
 
-            level1.drawDemons();
             level1.drawObstacles();
+            level1.drawDemons();
             World.getFae().drawCharacter();
 
 

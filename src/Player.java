@@ -33,6 +33,7 @@ public class Player extends Character {
         healthPoints = MAX_HEALTH_POINTS;
         state = INITIAL_STATE;
         movementSpeed = MOVEMENT_SPEED;
+        damagePoints = DAMAGE_POINTS;
     }
 
 
@@ -68,9 +69,7 @@ public class Player extends Character {
         }
     }
 
-    public static int getDamagePoints() {
-        return DAMAGE_POINTS;
-    }
+
 
     public boolean getIsCoolDown() {
         return isCooldown;

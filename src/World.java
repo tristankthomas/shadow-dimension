@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Random;
+import bagel.Image;
 
 public class World {
 
@@ -124,6 +125,7 @@ public class World {
         navec.drawCharacter();
     }
 
+
     /* Checks if player will hit the outside boundary depending on which direction Fae is moving */
     public boolean atBoundary(String direction, Character character) {
         switch(direction) {
@@ -211,7 +213,7 @@ public class World {
         for (int i = 0; i < numDemons; i++) {
             current = demons.get(i);
             if (current.getBoundary().intersects(fae.getBoundary()) && current.state != State.INVISIBLE) {
-                current.setHealth(current.getHealth() - fae.getDamagePoints());
+                inflictDamage(fae, current, "Fae", "Demon");
                 if (current.isDead()) {
                     demons.remove(i);
                     numDemons--;
@@ -220,7 +222,7 @@ public class World {
             }
         }
         if (navec.getBoundary().intersects(fae.getBoundary()) && navec.state != State.INVISIBLE) {
-            navec.setHealth(navec.getHealth() - fae.getDamagePoints());
+            inflictDamage(fae, navec, "Fae", "Navec");
             navec.invincible();
         }
 
@@ -247,6 +249,40 @@ public class World {
             }
         }
         navec.move(this);
+    }
+
+    public Location fireLocation(Demon demon) {
+        Point faeCentre = fae.getCentredCoord();
+        Point demonCentre = demon.getCentredCoord();
+        if (faeCentre.x <= demonCentre.x && faeCentre.y <= demonCentre.y) return Location.TOP_LEFT;
+        else if (faeCentre.x <= demonCentre.x && faeCentre.y > demonCentre.y) return Location.BOTTOM_LEFT;
+        else if (faeCentre.x > demonCentre.x && faeCentre.y <= demonCentre.y) return Location.TOP_RIGHT;
+        else if (faeCentre.x > demonCentre.x && faeCentre.y > demonCentre.y) return Location.BOTTOM_RIGHT;
+        return null;
+    }
+
+    public void proximityCheck() {
+        Point faeCentre = fae.getCentredCoord();
+        Point demonCentre;
+
+        for (Demon demon : demons) {
+            demonCentre = demon.getCentredCoord();
+            if (faeCentre.distanceTo(demonCentre) <= demon.getAttackRange()) {
+                demon.attack(this);
+            }
+
+        }
+        demonCentre = navec.getCentredCoord();
+        if (faeCentre.distanceTo(demonCentre) <= navec.getAttackRange()) {
+            navec.attack(this);
+        }
+
+    }
+
+    public void inflictDamage(Character inflictor, Character inflictee, String inflictorString, String inflicteeString) {
+        inflictee.setHealth(inflictee.getHealth() - inflictor.getDamagePoints());
+        System.out.printf("%s inflicts %d damage points on %s. %s's current health: %d/%d\n",
+                inflictorString, inflictor.getDamagePoints(), inflicteeString, inflicteeString, inflictee.getHealth(), inflictee.getMaxHealth());
     }
 
 
