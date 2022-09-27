@@ -1,12 +1,17 @@
+import bagel.DrawOptions;
 import bagel.util.Point;
 import bagel.Image;
 public abstract class Fire {
     private Location location;
     protected Point coords;
+    private DrawOptions rotation;
     protected Image currentImage;
 
     public void drawFire() {
-        currentImage.drawFromTopLeft(coords.x, coords.y);
+        rotation = new DrawOptions();
+        setRotation();
+        currentImage.drawFromTopLeft(coords.x, coords.y, rotation);
+
     }
 
     public void setLocation(Location location) {
@@ -15,4 +20,19 @@ public abstract class Fire {
     public void setCoords(Point coords) {
         this.coords = coords;
     }
+
+    public DrawOptions setRotation() {
+        switch (location) {
+            case TOP_LEFT:
+                return rotation.setRotation(0);
+            case TOP_RIGHT:
+                return rotation.setRotation(Math.PI / 2);
+            case BOTTOM_LEFT:
+                return rotation.setRotation(-Math.PI / 2);
+            case BOTTOM_RIGHT:
+                return rotation.setRotation(Math.PI);
+        }
+        return rotation;
+    }
+
 }

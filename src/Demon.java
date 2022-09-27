@@ -1,4 +1,5 @@
 import java.util.Random;
+import bagel.util.Point;
 
 public class Demon extends Character {
 
@@ -78,19 +79,24 @@ public class Demon extends Character {
 
     public void attack(World gameWorld) {
         Location location = gameWorld.fireLocation(this);
+        Point point;
         fire.setLocation(location);
         switch (location) {
             case TOP_LEFT:
-                fire.setCoords(getBoundary().topLeft());
+                point = getBoundary().topLeft();
+                fire.setCoords(new Point(point.x - fire.currentImage.getWidth(), point.y - fire.currentImage.getHeight()));
                 break;
             case TOP_RIGHT:
-                fire.setCoords(getBoundary().topRight());
+                point = getBoundary().topRight();
+                fire.setCoords(new Point(point.x, point.y - fire.currentImage.getHeight()));
                 break;
             case BOTTOM_LEFT:
-                fire.setCoords(getBoundary().bottomLeft());
+                point = getBoundary().bottomLeft();
+                fire.setCoords(new Point(point.x - fire.currentImage.getWidth(), point.y));
                 break;
             case BOTTOM_RIGHT:
-                fire.setCoords(getBoundary().bottomRight());
+                point = getBoundary().bottomRight();
+                fire.setCoords(point);
                 break;
         }
         fire.drawFire();
