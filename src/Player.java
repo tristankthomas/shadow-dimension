@@ -15,10 +15,12 @@ public class Player extends Character {
     private final static String FAE_ATTACK_RIGHT = "res/fae/faeAttackRight.png";
     private final static String FAE_ATTACK_LEFT = "res/fae/faeAttackLeft.png";
     private boolean isCooldown = false;
+    private boolean isAttack = false;
 
     private final int HEALTH_X = 20;
     private final int HEALTH_Y = 25;
-    private static final State INITIAL_STATE = State.IDLE;
+    private int cooldownFrameCount = 0;
+    private int attackFrameCount = 0;
     private static final int MAX_HEALTH_POINTS = 100;
     private static final int DAMAGE_POINTS = 20;
     private final static int HEALTH_FONT_SIZE = 30;
@@ -31,7 +33,6 @@ public class Player extends Character {
         currentImage = new Image(FAE_RIGHT);
         maxHealth = MAX_HEALTH_POINTS;
         healthPoints = MAX_HEALTH_POINTS;
-        state = INITIAL_STATE;
         movementSpeed = MOVEMENT_SPEED;
         damagePoints = DAMAGE_POINTS;
     }
@@ -75,20 +76,19 @@ public class Player extends Character {
         return isCooldown;
     }
 
+    public boolean getIsAttack() { return isAttack; }
+
 
     /* Draws player based on direction */
     @Override
     public void drawCharacter() {
         /* draws the player in the direction it was last moving */
-        switch (state) {
-            case IDLE:
-                if (isRight) currentImage = new Image(FAE_RIGHT);
-                else currentImage = new Image(FAE_LEFT);
-                break;
-            case ATTACK:
-                if (isRight) currentImage = new Image(FAE_ATTACK_RIGHT);
-                else currentImage = new Image(FAE_ATTACK_LEFT);
-                break;
+        if (isAttack) {
+            if (isRight) currentImage = new Image(FAE_ATTACK_RIGHT);
+            else currentImage = new Image(FAE_ATTACK_LEFT);
+        } else {
+            if (isRight) currentImage = new Image(FAE_RIGHT);
+            else currentImage = new Image(FAE_LEFT);
         }
 
         super.drawCharacter();
@@ -96,26 +96,27 @@ public class Player extends Character {
     }
 
     public void attack(World world) {
-        state = State.ATTACK;
+        isAttack = true;
+
         world.faeDemonIntersect();
 
-        if (frameCount / FRAMES_PER_MS == ATTACK_TIME_MS) {
-            frameCount = 0;
+        if (attackFrameCount / FRAMES_PER_MS == ATTACK_TIME_MS) {
+            attackFrameCount = 0;
             isCooldown = true;
-            state = State.IDLE;
+            isAttack = false;
         } else {
-            frameCount++;
+            attackFrameCount++;
         }
 
     }
 
     public void cooldown() {
 
-        if (frameCount / FRAMES_PER_MS == IDLE_TIME_MS) {
-            frameCount = 0;
+        if (cooldownFrameCount / FRAMES_PER_MS == IDLE_TIME_MS) {
+            cooldownFrameCount = 0;
             isCooldown = false;
         } else {
-            frameCount++;
+            cooldownFrameCount++;
         }
 
     }

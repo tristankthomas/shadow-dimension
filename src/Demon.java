@@ -9,7 +9,6 @@ public class Demon extends Character {
     private final static int HEALTH_FONT_SIZE = 15;
     protected Random random = new Random();
     private static final int HEALTH_Y_OFFSET = 6;
-    private static final State INITIAL_STATE = State.ATTACK;
     protected Fire fire;
     protected boolean canMove = false;
     protected String direction;
@@ -19,7 +18,6 @@ public class Demon extends Character {
        this.xCoord = xCoord;
        this.yCoord = yCoord;
        bar = new HealthBar(xCoord, yCoord - HEALTH_Y_OFFSET, HEALTH_FONT_SIZE);
-       state = INITIAL_STATE;
     }
 
     public boolean getCanMove() {
@@ -100,7 +98,7 @@ public class Demon extends Character {
                 break;
         }
         fire.drawFire();
-
+        gameWorld.flameIntersect(this);
     }
 
 

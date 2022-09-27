@@ -2,12 +2,13 @@ import bagel.*;
 import java.util.Random;
 
 public class Navec extends Demon {
-    private final static String NAVEC_INVINSIBLE_LEFT = "res/navec/navecInvincibleLeft.png";
-    private final static String NAVEC_INVINSIBLE_RIGHT = "res/navec/navecInvincibleRight.png";
+    private final static String NAVEC_INVINCIBLE_LEFT = "res/navec/navecInvincibleLeft.png";
+    private final static String NAVEC_INVINCIBLE_RIGHT = "res/navec/navecInvincibleRight.png";
     private final static String NAVEC_LEFT = "res/navec/navecLeft.png";
     private final static String NAVEC_RIGHT = "res/navec/navecRight.png";
     private final static double LOWER_SPEED = 0.2;
     private final static double UPPER_SPEED = 0.7;
+    private static final int DAMAGE_POINTS = 20;
     private Random random = new Random();
 
     private final static int MAX_HEALTH_POINTS = 80;
@@ -19,6 +20,7 @@ public class Navec extends Demon {
         maxHealth = MAX_HEALTH_POINTS;
         attackRange = ATTACK_RANGE;
         currentImage = new Image(NAVEC_RIGHT);
+        damagePoints = DAMAGE_POINTS;
         movementSpeed = LOWER_SPEED + (random.nextDouble() * (UPPER_SPEED - LOWER_SPEED));
         canMove = true;
         fire = new NavecFire();
@@ -44,15 +46,12 @@ public class Navec extends Demon {
     @Override
     public void drawCharacter() {
         /* draws the player in the direction it was last moving */
-        switch (state) {
-            case ATTACK:
-                if (isRight) currentImage = new Image(NAVEC_RIGHT);
-                else currentImage = new Image(NAVEC_LEFT);
-                break;
-            case INVISIBLE:
-                if (isRight) currentImage = new Image(NAVEC_INVINSIBLE_RIGHT);
-                else currentImage = new Image(NAVEC_INVINSIBLE_LEFT);
-                break;
+        if (isInvincible) {
+            if (isRight) currentImage = new Image(NAVEC_INVINCIBLE_RIGHT);
+            else currentImage = new Image(NAVEC_INVINCIBLE_LEFT);
+        } else {
+            if (isRight) currentImage = new Image(NAVEC_RIGHT);
+            else currentImage = new Image(NAVEC_LEFT);
         }
 
         super.drawCharacter();

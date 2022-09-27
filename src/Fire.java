@@ -1,6 +1,8 @@
 import bagel.DrawOptions;
 import bagel.util.Point;
 import bagel.Image;
+import bagel.util.Rectangle;
+
 public abstract class Fire {
     private Location location;
     protected Point coords;
@@ -19,6 +21,10 @@ public abstract class Fire {
     }
     public void setCoords(Point coords) {
         this.coords = coords;
+    }
+
+    public Rectangle getBoundary() {
+        return new Rectangle(coords.x, coords.y, currentImage.getWidth(), currentImage.getHeight());
     }
 
     public DrawOptions setRotation() {

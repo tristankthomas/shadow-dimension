@@ -148,7 +148,7 @@ public class ShadowDimension extends AbstractGame {
             /* moves player if not at a boundary and arrow keys are pressed */
             World.getFae().move(input, level1);
 
-            if ((input.wasPressed(Keys.A) && !World.getFae().getIsCoolDown()) || World.getFae().state == State.ATTACK) {
+            if ((input.wasPressed(Keys.A) && !World.getFae().getIsCoolDown()) || World.getFae().getIsAttack()) {
                 World.getFae().attack(level1);
 
             }
@@ -157,7 +157,7 @@ public class ShadowDimension extends AbstractGame {
                 World.getFae().cooldown();
             }
 
-            level1.demonInvincible();
+            level1.charactersInvincible();
             level1.demonsMove();
             level1.proximityCheck();
 

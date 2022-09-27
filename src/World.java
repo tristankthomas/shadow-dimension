@@ -212,7 +212,7 @@ public class World {
         Demon current;
         for (int i = 0; i < numDemons; i++) {
             current = demons.get(i);
-            if (current.getBoundary().intersects(fae.getBoundary()) && current.state != State.INVISIBLE) {
+            if (current.getBoundary().intersects(fae.getBoundary()) && !current.isInvincible) {
                 inflictDamage(fae, current, "Fae", "Demon");
                 if (current.isDead()) {
                     demons.remove(i);
@@ -221,22 +221,24 @@ public class World {
                 current.invincible();
             }
         }
-        if (navec.getBoundary().intersects(fae.getBoundary()) && navec.state != State.INVISIBLE) {
+        if (navec.getBoundary().intersects(fae.getBoundary()) && !navec.isInvincible) {
             inflictDamage(fae, navec, "Fae", "Navec");
             navec.invincible();
         }
 
     }
 
-    public void demonInvincible() {
+    public void charactersInvincible() {
         for (Demon demon : demons) {
-            if (demon.state == State.INVISIBLE) {
+            if (demon.isInvincible) {
                 demon.invincible();
 
             }
         }
-        if (navec.state == State.INVISIBLE) navec.invincible();
+        if (navec.isInvincible) navec.invincible();
+        if (fae.isInvincible) fae.invincible();
     }
+
 
     public boolean demonIntersect(Demon demon) {
         return obstacleIntersect(demon.direction, demon) || holeIntersect(demon) || atBoundary(demon.direction, demon);
@@ -277,6 +279,19 @@ public class World {
             navec.attack(this);
         }
 
+    }
+
+    public void flameIntersect(Demon demon) {
+        if (demon.fire.getBoundary().intersects(fae.getBoundary())) {
+            if (!fae.isInvincible) {
+                if (demon instanceof Navec)
+                    inflictDamage(demon, fae, "Navec", "Fae");
+                else
+                    inflictDamage(demon, fae, "Demon", "Fae");
+                fae.invincible();
+            }
+
+        }
     }
 
     public void inflictDamage(Character inflictor, Character inflictee, String inflictorString, String inflicteeString) {

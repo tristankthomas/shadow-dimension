@@ -14,16 +14,16 @@ public abstract class Character {
     private static final int FRAME_RATE_HZ = 60;
     protected static final double FRAMES_PER_MS = (double) FRAME_RATE_HZ / 1000;
     private static final int INVINCIBLE_TIME_MS = 3000;
+    protected boolean isInvincible = false;
     protected double xCoord;
     protected double yCoord;
     protected int damagePoints;
     protected int healthPoints;
-    protected int frameCount = 0;
+    protected int invincibleFrameCount = 0;
     protected int maxHealth;
     protected double movementSpeed;
     protected HealthBar bar;
     protected Image currentImage;
-    protected State state;
     /* keeps track of which direction Fae is facing */
     protected boolean isRight = true;
 
@@ -91,12 +91,12 @@ public abstract class Character {
     }
 
     protected void invincible() {
-        state = State.INVISIBLE;
-        if (frameCount / FRAMES_PER_MS == INVINCIBLE_TIME_MS) {
-            frameCount = 0;
-            state = State.ATTACK;
+        isInvincible = true;
+        if (invincibleFrameCount / FRAMES_PER_MS == INVINCIBLE_TIME_MS) {
+            invincibleFrameCount = 0;
+            isInvincible = false;
         } else {
-            frameCount++;
+            invincibleFrameCount++;
         }
     }
 
