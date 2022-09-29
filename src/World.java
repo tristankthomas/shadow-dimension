@@ -23,6 +23,11 @@ public class World {
     private ArrayList<Wall> walls = new ArrayList<Wall>();
     private ArrayList<Demon> demons = new ArrayList<Demon>();
     private Random random = new Random();
+    private static final int TIMESCALE_LOWER = -3;
+    private static final int TIMESCALE_UPPER = 3;
+
+    private static final int DEFAULT_TIMESCALE = 0;
+    private static int timescale = DEFAULT_TIMESCALE;
     private Point topLeftBound;
     private Point botRightBound;
     private int numSinkholes = 0;
@@ -30,6 +35,7 @@ public class World {
     private int numWalls = 0;
     private int numDemons = 0;
     private final static int WALL_INTERSECT_OFFSET = 3;
+    private final static double TIMESCALE_FACTOR = 0.5;
 
     /* Initialises all the game entities of the world from a csv file */
     public World(String levelFile) {
@@ -298,6 +304,45 @@ public class World {
         inflictee.setHealth(inflictee.getHealth() - inflictor.getDamagePoints());
         System.out.printf("%s inflicts %d damage points on %s. %s's current health: %d/%d\n",
                 inflictorString, inflictor.getDamagePoints(), inflicteeString, inflicteeString, inflictee.getHealth(), inflictee.getMaxHealth());
+    }
+
+    public void increaseMovement() {
+        double factor;
+        if (timescale < TIMESCALE_UPPER) {
+            factor =  (timescale >= 0) ? 1 + TIMESCALE_FACTOR : 1 / (1 - TIMESCALE_FACTOR);
+            for (Demon demon : demons) {
+                if (demon.getCanMove()) {
+                    demon.setMovementSpeed(demon.getMovementSpeed() * (factor));
+                }
+            }
+            navec.setMovementSpeed(navec.getMovementSpeed() * (factor));
+
+            timescale++;
+            System.out.println("Sped up, Speed: " + timescale);
+            System.out.println(navec.getMovementSpeed());
+        }
+
+
+    }
+
+    public void decreaseMovement() {
+        double factor;
+        if (timescale > TIMESCALE_LOWER) {
+            factor =  (timescale <= 0) ? 1 - TIMESCALE_FACTOR : 1 / (1 + TIMESCALE_FACTOR);
+            for (Demon demon : demons) {
+                if (demon.getCanMove()) {
+                    demon.setMovementSpeed(demon.getMovementSpeed() * (factor));
+                }
+            }
+            navec.setMovementSpeed(navec.getMovementSpeed() * (factor));
+
+            timescale--;
+            System.out.println("Slowed down, Speed: " + timescale);
+            System.out.println(navec.getMovementSpeed());
+        }
+
+
+
     }
 
 

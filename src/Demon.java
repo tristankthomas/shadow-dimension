@@ -2,10 +2,6 @@ import java.util.Random;
 import bagel.util.Point;
 
 public class Demon extends Character {
-
-    private static final double SPEED_FACTOR = 0.5;
-    private static final int TIMESCALE_LOWER = -3;
-    private static final int TIMESCALE_UPPER = 3;
     private final static int HEALTH_FONT_SIZE = 15;
     protected Random random = new Random();
     private static final int HEALTH_Y_OFFSET = 6;
@@ -74,6 +70,22 @@ public class Demon extends Character {
 
 
     }
+
+    public static void increaseTimescale(World gameWorld) {
+
+
+        gameWorld.increaseMovement();
+
+    }
+
+    public static void decreaseTimescale(World gameWorld) {
+
+
+        gameWorld.decreaseMovement();
+    }
+
+
+
 
     public void attack(World gameWorld) {
         Location location = gameWorld.fireLocation(this);

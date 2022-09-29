@@ -152,6 +152,12 @@ public class ShadowDimension extends AbstractGame {
                 World.getFae().attack(level1);
 
             }
+            if (input.wasPressed(Keys.L)) {
+                Demon.increaseTimescale(level1);
+            }
+            if (input.wasPressed(Keys.K)) {
+                Demon.decreaseTimescale(level1);
+            }
 
             if (World.getFae().getIsCoolDown()) {
                 World.getFae().cooldown();

@@ -49,6 +49,13 @@ public abstract class Character {
     public void setYCoord(double yCoord) {
         this.yCoord = yCoord;
     }
+    public void setMovementSpeed(double movementSpeed) {
+        this.movementSpeed = movementSpeed;
+    }
+
+    public double getMovementSpeed() {
+        return movementSpeed;
+    }
 
     public int getHealth() {
         return healthPoints;
