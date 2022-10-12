@@ -1,18 +1,18 @@
-/**
- * SWEN20003 Project 2, Semester 2, 2022
- *
- * World.java: Abstract class representing players including demons and fae
- *
- * @author Tristan Thomas
- */
-
 import bagel.Image;
 import bagel.util.Rectangle;
 import bagel.util.Point;
 
+/**
+ * SWEN20003 Project 2, Semester 2, 2022
+ *
+ * Character.java: Abstract class representing characters including demons and fae
+ *
+ * @author Tristan Thomas
+ */
 public abstract class Character {
     private static final int FRAME_RATE_HZ = 60;
-    protected static final double FRAMES_PER_MS = (double) FRAME_RATE_HZ / 1000;
+    private static final int SEC_TO_MS = 1000;
+    protected static final double FRAMES_PER_MS = (double) FRAME_RATE_HZ / SEC_TO_MS;
     private static final int INVINCIBLE_TIME_MS = 3000;
     protected boolean isInvincible = false;
     protected double xCoord;
@@ -24,9 +24,20 @@ public abstract class Character {
     protected double movementSpeed;
     protected HealthBar bar;
     protected Image currentImage;
-    /* keeps track of which direction Fae is facing */
+    /* keeps track of which direction the character is facing */
     protected boolean isRight = true;
 
+    /**
+     * Constructor for a character
+     * @param xCoord
+     * @param yCoord
+     */
+    public Character(double xCoord, double yCoord) {
+        this.xCoord = xCoord;
+        this.yCoord = yCoord;
+    }
+
+    /* Getters and setters */
     public double getXCoord() {
         return xCoord;
     }
@@ -42,13 +53,6 @@ public abstract class Character {
         return damagePoints;
     }
 
-    public void setXCoord(double xCoord) {
-        this.xCoord = xCoord;
-    }
-
-    public void setYCoord(double yCoord) {
-        this.yCoord = yCoord;
-    }
     public void setMovementSpeed(double movementSpeed) {
         this.movementSpeed = movementSpeed;
     }
@@ -86,10 +90,17 @@ public abstract class Character {
         return FRAMES_PER_MS;
     }
 
+    /**
+     * Returns whether a character is dead or not
+     * @return
+     */
     public boolean isDead() {
         return healthPoints <= 0;
     }
 
+    /**
+     * Draws character by current image
+     */
     public void drawCharacter() {
         bar.updateColour(this);
         bar.drawHealth(this);
@@ -97,9 +108,13 @@ public abstract class Character {
         currentImage.drawFromTopLeft(xCoord, yCoord);
     }
 
+    /**
+     * When character gets attacked invincible method is used
+     */
     protected void invincible() {
         isInvincible = true;
         if (invincibleFrameCount / FRAMES_PER_MS == INVINCIBLE_TIME_MS) {
+            /* if invincible time is up character no longer invincible */
             invincibleFrameCount = 0;
             isInvincible = false;
         } else {

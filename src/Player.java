@@ -1,3 +1,5 @@
+import bagel.*;
+
 /**
  * SWEN20003 Project 2, Semester 2, 2022
  *
@@ -5,10 +7,6 @@
  *
  * @author Tristan Thomas
  */
-
-import bagel.*;
-import bagel.util.Rectangle;
-
 public class Player extends Character {
     private final static String FAE_RIGHT = "res/fae/faeRight.png";
     private final static String FAE_LEFT = "res/fae/faeLeft.png";
@@ -16,7 +14,6 @@ public class Player extends Character {
     private final static String FAE_ATTACK_LEFT = "res/fae/faeAttackLeft.png";
     private boolean isCooldown = false;
     private boolean isAttack = false;
-
     private final int HEALTH_X = 20;
     private final int HEALTH_Y = 25;
     private int cooldownFrameCount = 0;
@@ -28,7 +25,13 @@ public class Player extends Character {
     private static final int ATTACK_TIME_MS = 1000;
     private static final int IDLE_TIME_MS = 2000;
 
-    public Player() {
+    /**
+     * Constructor to initialise player attributes
+     * @param xCoord
+     * @param yCoord
+     */
+    public Player(double xCoord, double yCoord) {
+        super(xCoord, yCoord);
         bar = new HealthBar(HEALTH_X, HEALTH_Y, HEALTH_FONT_SIZE);
         currentImage = new Image(FAE_RIGHT);
         maxHealth = MAX_HEALTH_POINTS;
@@ -37,41 +40,7 @@ public class Player extends Character {
         damagePoints = DAMAGE_POINTS;
     }
 
-
-    public void move(Input input, World gameWorld) {
-        if (input.isDown(Keys.LEFT) && !gameWorld.atBoundary("left", this) &&
-                !gameWorld.obstacleIntersect("left", this)) {
-
-            xCoord -= MOVEMENT_SPEED;
-            isRight = false;
-
-        }
-
-        if (input.isDown(Keys.RIGHT) && !gameWorld.atBoundary("right", this) &&
-                !gameWorld.obstacleIntersect("right", this)) {
-
-            xCoord += MOVEMENT_SPEED;
-            isRight = true;
-
-        }
-
-        if (input.isDown(Keys.UP) && !gameWorld.atBoundary("up", this) &&
-                !gameWorld.obstacleIntersect("up", this)) {
-
-            yCoord -= MOVEMENT_SPEED;
-
-        }
-
-        if (input.isDown(Keys.DOWN) && !gameWorld.atBoundary("down", this) &&
-                !gameWorld.obstacleIntersect("down", this)) {
-
-            yCoord += MOVEMENT_SPEED;
-
-        }
-    }
-
-
-
+    /* Getters */
     public boolean getIsCoolDown() {
         return isCooldown;
     }
@@ -79,7 +48,48 @@ public class Player extends Character {
     public boolean getIsAttack() { return isAttack; }
 
 
-    /* Draws player based on direction */
+    /**
+     * Allows the movement of fae using keyboard input
+     * @param input
+     * @param gameWorld
+     */
+    public void move(Input input, World gameWorld) {
+        /* only moves is obstacle or game boundary is not present */
+        if (input.isDown(Keys.LEFT) && !gameWorld.atBoundary(Direction.LEFT, this) &&
+                !gameWorld.obstacleIntersect(Direction.LEFT, this)) {
+
+            xCoord -= MOVEMENT_SPEED;
+            isRight = false;
+
+        }
+
+        if (input.isDown(Keys.RIGHT) && !gameWorld.atBoundary(Direction.RIGHT, this) &&
+                !gameWorld.obstacleIntersect(Direction.RIGHT, this)) {
+
+            xCoord += MOVEMENT_SPEED;
+            isRight = true;
+
+        }
+
+        if (input.isDown(Keys.UP) && !gameWorld.atBoundary(Direction.UP, this) &&
+                !gameWorld.obstacleIntersect(Direction.UP, this)) {
+
+            yCoord -= MOVEMENT_SPEED;
+
+        }
+
+        if (input.isDown(Keys.DOWN) && !gameWorld.atBoundary(Direction.DOWN, this) &&
+                !gameWorld.obstacleIntersect(Direction.DOWN, this)) {
+
+            yCoord += MOVEMENT_SPEED;
+
+        }
+    }
+
+
+    /**
+     * Draws player based on state and direction
+     */
     @Override
     public void drawCharacter() {
         /* draws the player in the direction it was last moving */
@@ -95,12 +105,20 @@ public class Player extends Character {
 
     }
 
-    public void attack(World world) {
+    /**
+     * Allows for the player attack mode to be entered and counts down attack time left
+     * @param world
+     * @param level
+     */
+    public void attack(World world, int level) {
         isAttack = true;
 
-        world.faeDemonIntersect();
+        /* only attacks demons in level 1 (attack mode can still be entered in level 0) */
+        if (level == 1) world.faeDemonIntersect();
 
+        /* counts down how long is left in attack mode */
         if (attackFrameCount / FRAMES_PER_MS == ATTACK_TIME_MS) {
+            /* attack mode deactivated */
             attackFrameCount = 0;
             isCooldown = true;
             isAttack = false;
@@ -110,6 +128,9 @@ public class Player extends Character {
 
     }
 
+    /**
+     * After attack mode is finished cooldown period begins (same timing mechanism as attack)
+     */
     public void cooldown() {
 
         if (cooldownFrameCount / FRAMES_PER_MS == IDLE_TIME_MS) {

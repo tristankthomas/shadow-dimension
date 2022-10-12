@@ -1,15 +1,14 @@
+import bagel.*;
+import bagel.util.Point;
+
 /**
  * SWEN20003 Project 2, Semester 2, 2022
  *
  * ShadowDimension.java: Main Shadow Dimension class used to run game
+ * Certain object-oriented aspects of this game were inspired from the Project 1 sample solution
  *
  * @author Tristan Thomas
  */
-
-import bagel.*;
-import bagel.util.Colour;
-import bagel.util.Point;
-
 public class ShadowDimension extends AbstractGame {
     /* game window attributes */
     private final static int WINDOW_WIDTH = 1024;
@@ -31,7 +30,7 @@ public class ShadowDimension extends AbstractGame {
 
     private final Font DEFAULT_FONT = new Font("res/frostbite.ttf", DEFAULT_FONT_SIZE);
     private final Font INSTRUCTION_FONT = new Font("res/frostbite.ttf", INSTRUCTION_FONT_SIZE);
-    /* text coordinates */
+    /* coordinates */
     private final int PORTAL_X = 950;
     private final int PORTAL_Y = 670;
     private final int TITLE_X = 260;
@@ -52,30 +51,48 @@ public class ShadowDimension extends AbstractGame {
     private boolean level1Start = false;
 
 
+    /**
+     * Constructor for ShadowDimension class
+     */
     public ShadowDimension() {
         super(WINDOW_WIDTH, WINDOW_HEIGHT, GAME_TITLE);
     }
 
-    /* Entry point for the program */
+
+    /**
+     * Entry point for the program
+     * @param args
+     *
+     */
     public static void main(String[] args) {
         ShadowDimension game = new ShadowDimension();
         game.run();
     }
 
-    /* Calculates the centre coordinates for a given string (top left of string) */
+
+
+    /**
+     * Calculates the centre coordinates for a given string (top left of string)
+     * @param text
+     * @return
+     */
     public Point getCentredCoord(String text) {
         return new Point(Window.getWidth() / 2 - DEFAULT_FONT.getWidth(text) / 2,
                 Window.getHeight() / 2 + (double) DEFAULT_FONT_SIZE / 2);
     }
 
 
-    /* Performs a state update at the refresh rate of screen */
+    /**
+     * Performs a state update at the refresh rate of screen
+     * @param input
+     */
     @Override
     protected void update(Input input) {
 
         if (input.wasPressed(Keys.ESCAPE))
             /* closes window */
             Window.close();
+
         else if (!level0Start && !level0Finish) {
             /* waits for game to start */
             if (input.wasPressed(Keys.SPACE)) {
@@ -89,7 +106,7 @@ public class ShadowDimension extends AbstractGame {
             INSTRUCTION_FONT.drawString(INSTRUCTION1, INSTRUCTION1_X, INSTRUCTION1_Y);
 
         } else if (!level1Start && level0Finish && levelFrameCount == 0) {
-            /* waits for game to start */
+            /* waits for game to start (after the level complete screen is finished) */
             if (input.wasPressed(Keys.SPACE)) {
                 /* game has started */
                 level1Start = true;
@@ -99,8 +116,9 @@ public class ShadowDimension extends AbstractGame {
             /* level 1 screen */
             INSTRUCTION_FONT.drawString(INSTRUCTION2, INSTRUCTION2_X, INSTRUCTION2_Y);
 
-        } else if ((level0.getFae().getXCoord() >= PORTAL_X && level0.getFae().getYCoord() >= PORTAL_Y && level0Start) || (input.wasPressed(Keys.W) && level0Start) || levelFrameCount != 0) {
-            /* level win screen */
+        } else if ((level0.getFae().getXCoord() >= PORTAL_X && level0.getFae().getYCoord() >= PORTAL_Y && level0Start) ||
+                (input.wasPressed(Keys.W) && level0Start) || levelFrameCount != 0) {
+            /* level win screen (can be entered by pressing W as well as entering portal) */
             Point levelWinTextCoord = getCentredCoord(WIN_LEVEL_MESSAGE);
             /* counts the number of frames (for 3 seconds) */
             levelFrameCount = (levelFrameCount / Character.getFramesPerMs() != LEVEL_COMPLETE_TIME_MS) ? levelFrameCount + 1 : 0;
@@ -108,35 +126,40 @@ public class ShadowDimension extends AbstractGame {
             level0Start = false;
             level0Finish = true;
 
-        }else if (World.getFae().isDead()) {
+        } else if (level0.getFae().isDead()) {
 
             /* lose screen */
             Point loseTextCoord = getCentredCoord(LOSE_MESSAGE);
             DEFAULT_FONT.drawString(LOSE_MESSAGE, loseTextCoord.x, loseTextCoord.y);
 
         } else if (level0Start) {
-            BACKGROUND_IMAGE0.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
-            /* moves player if not at a boundary and arrow keys are pressed */
-            World.getFae().move(input, level0);
 
-            /* if a hole is intersected by Fae */
-            if (level0.holeIntersect(World.getFae())) {
-                // ADD THIS CODE TO A DIFFERENT CLASS PERHAPS SINKHOLE CLASS
-                World.getFae().setHealth(World.getFae().getHealth() - Sinkhole.getDamagePoints());
-                /* prints out player health to console */
-                System.out.printf("Sinkhole inflicts %d damage points on Fae. Fae's current health: %d/%d\n",
-                        Sinkhole.getDamagePoints(), World.getFae().getHealth(), World.getFae().getMaxHealth());
+            BACKGROUND_IMAGE0.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
+
+            /* moves player based on input */
+            level0.getFae().move(input, level0);
+
+            /* checks if sinkhole is hit */
+            level0.holeIntersect(level0.getFae());
+
+            /* attack mode entered */
+            if ((input.wasPressed(Keys.A) && !level0.getFae().getIsCoolDown()) || level0.getFae().getIsAttack()) {
+                level0.getFae().attack(level0, 0);
 
             }
 
-            /* renders player, obstacles and background */
+            /* cooldown mode entered (after attack finished) */
+            if (level0.getFae().getIsCoolDown()) {
+                level0.getFae().cooldown();
+            }
 
+            /* renders obstacles and fae */
             level0.drawObstacles();
-            World.getFae().drawCharacter();
+            level0.getFae().drawCharacter();
 
 
         } else if (level1.getNavec().isDead()) {
-            /* win screen */
+            /* win screen once navec is killed */
             Point winTextCoord = getCentredCoord(WIN_MESSAGE);
             DEFAULT_FONT.drawString(WIN_MESSAGE, winTextCoord.x, winTextCoord.y);
 
@@ -145,44 +168,44 @@ public class ShadowDimension extends AbstractGame {
         else if (level1Start) {
 
             BACKGROUND_IMAGE1.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
+
             /* moves player if not at a boundary and arrow keys are pressed */
-            World.getFae().move(input, level1);
+            level1.getFae().move(input, level1);
 
-            if ((input.wasPressed(Keys.A) && !World.getFae().getIsCoolDown()) || World.getFae().getIsAttack()) {
-                World.getFae().attack(level1);
+            /* attack mode entered */
+            if ((input.wasPressed(Keys.A) && !level1.getFae().getIsCoolDown()) || level1.getFae().getIsAttack()) {
+                level1.getFae().attack(level1, 1);
 
             }
+
+            /* cooldown mode entered (after attack finished) */
+            if (level1.getFae().getIsCoolDown()) {
+                level1.getFae().cooldown();
+            }
+
+            /* increases speed of demons */
             if (input.wasPressed(Keys.L)) {
-                Demon.increaseTimescale(level1);
+                level1.increaseMovement();
             }
+            /* decreases speed of demons */
             if (input.wasPressed(Keys.K)) {
-                Demon.decreaseTimescale(level1);
+                level1.decreaseMovement();
             }
 
-            if (World.getFae().getIsCoolDown()) {
-                World.getFae().cooldown();
-            }
-
+            /* updates all character invincibility */
             level1.charactersInvincible();
+            /* updates all demons movement */
             level1.demonsMove();
-            level1.proximityCheck();
-
-
-
+            /* checks if fae intersects fire */
+            level1.demonProximityCheck();
             /* if a hole is intersected by Fae */
-            if (level1.holeIntersect(World.getFae())) {
+            level1.holeIntersect(level1.getFae());
 
-                World.getFae().setHealth(World.getFae().getHealth() - Sinkhole.getDamagePoints());
-                /* prints out player health to console */
-                System.out.printf("Sinkhole inflicts %d damage points on Fae. Fae's current health: %d/%d\n",
-                        Sinkhole.getDamagePoints(), World.getFae().getHealth(), World.getFae().getMaxHealth());
-            }
 
-            /* renders player, obstacles and background */
-
+            /* renders fae, demons and obstacles */
             level1.drawObstacles();
             level1.drawDemons();
-            World.getFae().drawCharacter();
+            level1.getFae().drawCharacter();
 
 
 

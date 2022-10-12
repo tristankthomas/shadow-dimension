@@ -1,6 +1,13 @@
 import bagel.*;
 import java.util.Random;
 
+/**
+ * SWEN20003 Project 2, Semester 2, 2022
+ *
+ * Navec.java: Class representing Navec
+ *
+ * @author Tristan Thomas
+ */
 public class Navec extends Demon {
     private final static String NAVEC_INVINCIBLE_LEFT = "res/navec/navecInvincibleLeft.png";
     private final static String NAVEC_INVINCIBLE_RIGHT = "res/navec/navecInvincibleRight.png";
@@ -14,6 +21,11 @@ public class Navec extends Demon {
     private final static int MAX_HEALTH_POINTS = 80;
     private final static int ATTACK_RANGE = 200;
 
+    /**
+     * Constructor initialising all attributes including direction
+     * @param xCoord
+     * @param yCoord
+     */
     public Navec(double xCoord, double yCoord) {
         super(xCoord, yCoord);
         healthPoints = MAX_HEALTH_POINTS;
@@ -24,18 +36,20 @@ public class Navec extends Demon {
         movementSpeed = LOWER_SPEED + (random.nextDouble() * (UPPER_SPEED - LOWER_SPEED));
         canMove = true;
         fire = new NavecFire();
+
+        /* randomised direction based on a random integer from 0 to 3 */
         switch (random.nextInt(4)) {
             case 0:
-                direction = "right";
+                direction = Direction.RIGHT;
                 break;
             case 1:
-                direction = "left";
+                direction = Direction.LEFT;
                 break;
             case 2:
-                direction = "up";
+                direction = Direction.UP;
                 break;
             case 3:
-                direction = "down";
+                direction = Direction.DOWN;
                 break;
         }
 
@@ -43,6 +57,9 @@ public class Navec extends Demon {
 
     }
 
+    /**
+     * Draws Navec based on state and direction
+     */
     @Override
     public void drawCharacter() {
         /* draws the player in the direction it was last moving */
