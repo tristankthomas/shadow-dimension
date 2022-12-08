@@ -165,6 +165,14 @@ public class ShadowDimension extends AbstractGame {
 
         }
 
+        else if (level1.getFae().isDead()) {
+
+            /* lose screen */
+            Point loseTextCoord = getCentredCoord(LOSE_MESSAGE);
+            DEFAULT_FONT.drawString(LOSE_MESSAGE, loseTextCoord.x, loseTextCoord.y);
+
+        }
+
         else if (level1Start) {
 
             BACKGROUND_IMAGE1.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
